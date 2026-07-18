@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carnet d'accueil</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F7F5F2;
+    --surface: #FFFFFF;
+    --ink: #1A1916;
+    --ink-2: #5C5A56;
+    --ink-3: #9E9B95;
+    --accent: #2D5A4B;
+    --accent-light: #E8F0ED;
+    --accent-2: #C8A96E;
+    --border: rgba(26,25,22,0.10);
+    --radius: 16px;
+    --radius-sm: 10px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(247,245,242,0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2rem;
+    height: 56px;
+  }
+
+  .nav-logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.1rem;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+
+  .lang-switcher {
+    display: flex;
+    gap: 4px;
+  }
+
+  .lang-btn {
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    background: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--ink-2);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .lang-btn.active, .lang-btn:hover {
+    background: var(--accent-light);
+    color: var(--accent);
+    border-color: rgba(45,90,75,0.2);
+  }
+
+  /* ── HERO ── */
+  .hero {
+    padding: 4rem 2rem 3rem;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1rem;
+  }
+
+  .hero-eyebrow::before {
+    content: '';
+    display: block;
+    width: 20px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  .hero h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2.2rem, 6vw, 3.6rem);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin-bottom: 1rem;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero-sub {
+    font-size: 1.05rem;
+    color: var(--ink-2);
+    max-width: 460px;
+    line-height: 1.65;
+  }
+
+  /* ── SECTION NAV PILLS ── */
+  .section-nav {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 0 2rem 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .section-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    font-size: 0.82rem;
+    font-weight: 400;
+    color: var(--ink-2);
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.15s;
+  }
+
+  .section-pill:hover {
+    background: var(--accent-light);
+    border-color: rgba(45,90,75,0.25);
+    color: var(--accent);
+  }
+
+  .section-pill svg {
+    width: 14px;
+    height: 14px;
+    opacity: 0.6;
+    flex-shrink: 0;
+  }
+
+  /* ── MAIN LAYOUT ── */
+  main {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 0 2rem 6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  /* ── SECTION CARD ── */
+  .section-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 1.25rem 1.5rem;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s;
+  }
+
+  .section-header:hover {
+    background: var(--bg);
+  }
+
+  .section-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: var(--accent-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .section-icon svg {
+    width: 18px;
+    height: 18px;
+    color: var(--accent);
+  }
+
+  .section-title-group {
+    flex: 1;
+  }
+
+  .section-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.1rem;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+
+  .section-subtitle {
+    font-size: 0.78rem;
+    color: var(--ink-3);
+    margin-top: 2px;
+  }
+
+  .chevron {
+    width: 20px;
+    height: 20px;
+    color: var(--ink-3);
+    transition: transform 0.25s;
+    flex-shrink: 0;
+  }
+
+  .section-card.open .chevron {
+    transform: rotate(180deg);
+  }
+
+  .section-body {
+    display: none;
+    padding: 0 1.5rem 1.5rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .section-card.open .section-body {
+    display: block;
+  }
+
+  /* ── CONTENT BLOCKS ── */
+  .content-block {
+    padding: 1.25rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .content-block:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .block-label {
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin-bottom: 0.5rem;
+  }
+
+  .block-value {
+    font-size: 0.95rem;
+    color: var(--ink);
+  }
+
+  .block-value p {
+    color: var(--ink-2);
+    font-size: 0.93rem;
+    line-height: 1.6;
+  }
+
+  /* ── HIGHLIGHT BOX ── */
+  .highlight-box {
+    background: var(--accent-light);
+    border-radius: var(--radius-sm);
+    padding: 1rem 1.25rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin: 1rem 0;
+  }
+
+  .highlight-box svg {
+    width: 20px;
+    height: 20px;
+    color: var(--accent);
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .highlight-box-content {
+    font-size: 0.9rem;
+    color: var(--ink);
+    line-height: 1.55;
+  }
+
+  .highlight-box-content strong {
+    font-weight: 500;
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  /* ── CODE / DIGICODE ── */
+  .code-display {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin: 0.5rem 0;
+  }
+
+  .code-digit {
+    width: 36px;
+    height: 44px;
+    background: var(--ink);
+    color: #fff;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    font-weight: 300;
+    letter-spacing: 0;
+    font-family: 'DM Serif Display', serif;
+  }
+
+  .code-sep {
+    width: 6px;
+    height: 2px;
+    background: var(--ink-3);
+    border-radius: 1px;
+    margin: 0 2px;
+  }
+
+  /* ── WIFI BUTTON ── */
+  .wifi-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 20px;
+    background: var(--accent);
+    color: #fff;
+    border-radius: var(--radius-sm);
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity 0.15s;
+    margin-top: 0.75rem;
+  }
+
+  .wifi-btn:hover { opacity: 0.88; }
+
+  .wifi-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .wifi-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 0.75rem;
+  }
+
+  .wifi-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.88rem;
+    color: var(--ink-2);
+  }
+
+  .wifi-row span:first-child {
+    color: var(--ink-3);
+    font-size: 0.78rem;
+    width: 80px;
+    flex-shrink: 0;
+  }
+
+  /* ── CHECKLIST ── */
+  .checklist {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 0.5rem;
+  }
+
+  .checklist li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.92rem;
+    color: var(--ink-2);
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.1s;
+  }
+
+  .checklist li.done {
+    color: var(--ink-3);
+    text-decoration: line-through;
+  }
+
+  .check-box {
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+
+  .checklist li.done .check-box {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .check-box svg {
+    width: 12px;
+    height: 12px;
+    color: #fff;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+
+  .checklist li.done .check-box svg { opacity: 1; }
+
+  /* ── GRID 2 COL ── */
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 0.75rem;
+  }
+
+  .mini-card {
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .mini-card-label {
+    font-size: 0.72rem;
+    color: var(--ink-3);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .mini-card-value {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--ink);
+  }
+
+  .mini-card-sub {
+    font-size: 0.8rem;
+    color: var(--ink-2);
+  }
+
+  /* ── CONTACT CARD ── */
+  .contact-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 0.9rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .contact-row:last-child { border-bottom: none; }
+
+  .contact-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--accent-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Serif Display', serif;
+    font-size: 0.9rem;
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .contact-info { flex: 1; }
+
+  .contact-name {
+    font-weight: 500;
+    font-size: 0.9rem;
+  }
+
+  .contact-role {
+    font-size: 0.78rem;
+    color: var(--ink-3);
+  }
+
+  .contact-link {
+    font-size: 0.85rem;
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  /* ── BONS PLANS TAG ── */
+  .place-tag {
+    display: inline-block;
+    font-size: 0.72rem;
+    padding: 2px 8px;
+    border-radius: 100px;
+    background: var(--accent-light);
+    color: var(--accent);
+    font-weight: 500;
+    margin-right: 6px;
+  }
+
+  .place-row {
+    padding: 0.85rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .place-row:last-child { border-bottom: none; }
+
+  .place-name {
+    font-weight: 500;
+    font-size: 0.93rem;
+    margin-bottom: 3px;
+  }
+
+  .place-desc {
+    font-size: 0.82rem;
+    color: var(--ink-2);
+  }
+
+  /* ── TRI SELECTIF ── */
+  .tri-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 0.75rem;
+  }
+
+  .tri-card {
+    border-radius: var(--radius-sm);
+    padding: 0.85rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    text-align: center;
+  }
+
+  .tri-card svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .tri-card-label {
+    font-size: 0.78rem;
+    font-weight: 500;
+    line-height: 1.3;
+  }
+
+  .tri-card-sub {
+    font-size: 0.7rem;
+    line-height: 1.3;
+    opacity: 0.7;
+  }
+
+  .tri-yellow { background: #FEF9EC; color: #92700A; }
+  .tri-blue   { background: #EAF3FB; color: #1A5F8C; }
+  .tri-green  { background: #EBF4EC; color: #2D6A31; }
+  .tri-gray   { background: #F2F2F0; color: #4A4A47; }
+  .tri-brown  { background: #F5EFE8; color: #7A4F2A; }
+  .tri-black  { background: #EBEBEA; color: #1A1916; }
+
+  /* ── FOOTER ── */
+  footer {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 1rem 2rem 3rem;
+    text-align: center;
+    font-size: 0.78rem;
+    color: var(--ink-3);
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    nav { padding: 0 1rem; }
+    .hero { padding: 2.5rem 1rem 2rem; }
+    .section-nav { padding: 0 1rem 1.5rem; }
+    main { padding: 0 1rem 4rem; }
+    footer { padding: 1rem 1rem 3rem; }
+    .grid-2 { grid-template-columns: 1fr; }
+    .tri-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+
+  /* ── HIDDEN (i18n) ── */
+  [data-lang] { display: none; }
+  [data-lang].active { display: block; }
+  span[data-lang].active,
+  a[data-lang].active { display: inline; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <span class="nav-logo">Chez nous 🏠</span>
+  <div class="lang-switcher">
+    <button class="lang-btn active" onclick="setLang('fr')">FR</button>
+    <button class="lang-btn" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" onclick="setLang('es')">ES</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-eyebrow">Carnet d'accueil · HomeExchange</div>
+  <h1>Bienvenue<br><em>chez vous.</em></h1>
+  <p class="hero-sub">Tout ce qu'il faut savoir pour vous sentir comme à la maison. N'hésitez pas à nous contacter si vous avez la moindre question.</p>
+</section>
+
+<!-- SECTION NAV PILLS -->
+<div class="section-nav">
+  <a href="#arrivee" class="section-pill">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 3H19C19.5523 3 20 3.44772 20 4V20C20 20.5523 19.5523 21 19 21H15"/><path d="M10 17L15 12L10 7"/><path d="M15 12H3"/></svg>
+    Arrivée & départ
+  </a>
+  <a href="#wifi" class="section-pill">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1"/></svg>
+    Wifi & équipements
+  </a>
+  <a href="#cuisine" class="section-pill">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+    Cuisine
+  </a>
+  <a href="#regles" class="section-pill">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6M9 12h6M9 15h4"/></svg>
+    Règles
+  </a>
+  <a href="#transports" class="section-pill">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+    Transports
+  </a>
+  <a href="#bons-plans" class="section-pill">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+    Bons plans
+  </a>
+  <a href="#urgences" class="section-pill">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.41 2 2 0 0 1 3.6 1.21h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.91A16 16 0 0 0 15.09 16.09l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+    Urgences
+  </a>
+  <a href="#checklist" class="section-pill">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+    Checklist départ
+  </a>
+</div>
+
+<!-- MAIN -->
+<main>
+
+  <!-- 1. ARRIVÉE & DÉPART -->
+  <div class="section-card open" id="arrivee">
+    <div class="section-header" onclick="toggleSection(this)">
+      <div class="section-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 3H19C19.5523 3 20 3.44772 20 4V20C20 20.5523 19.5523 21 19 21H15"/><path d="M10 17L15 12L10 7"/><path d="M15 12H3"/></svg>
+      </div>
+      <div class="section-title-group">
+        <div class="section-title" data-lang="fr">Arrivée &amp; départ</div>
+        <div class="section-title" data-lang="en">Check-in &amp; check-out</div>
+        <div class="section-title" data-lang="es">Llegada &amp; salida</div>
+        <div class="section-subtitle" data-lang="fr">Codes, clés, horaires</div>
+        <div class="section-subtitle" data-lang="en">Codes, keys, schedule</div>
+        <div class="section-subtitle" data-lang="es">Códigos, llaves, horarios</div>
+      </div>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="section-body">
+
+      <div class="content-block">
+        <div class="block-label" data-lang="fr">Porte de l'immeuble</div>
+        <div class="block-label" data-lang="en">Building entrance</div>
+        <div class="block-label" data-lang="es">Entrada del edificio</div>
+        <div class="highlight-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <div class="highlight-box-content">
+            <span data-lang="fr"><strong>Badge puis digicode</strong>Présentez le badge, puis tapez le code :</span>
+            <span data-lang="en"><strong>Badge then keypad</strong>Scan the badge, then enter the code:</span>
+            <span data-lang="es"><strong>Tarjeta y código</strong>Pase la tarjeta, luego ingrese el código:</span>
+          </div>
+        </div>
+        <div class="code-display">
+          <div class="code-digit">7</div>
+          <div class="code-digit">9</div>
+          <div class="code-sep"></div>
+          <div class="code-digit">2</div>
+          <div class="code-digit">6</div>
+        </div>
+      </div>
+
+      <div class="content-block">
+        <div class="block-label" data-lang="fr">L'appartement</div>
+        <div class="block-label" data-lang="en">The apartment</div>
+        <div class="block-label" data-lang="es">El apartamento</div>
+        <div class="highlight-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <div class="highlight-box-content">
+            <span data-lang="fr"><strong>3ème étage — porte de gauche</strong>Le paillasson arc-en-ciel, c'est bien chez nous 🌈</span>
+            <span data-lang="en"><strong>3rd floor — left door</strong>Look for the rainbow doormat 🌈</span>
+            <span data-lang="es"><strong>3er piso — puerta izquierda</strong>Busca el felpudo arcoíris 🌈</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="content-block">
+        <div class="block-label" data-lang="fr">Horaires</div>
+        <div class="block-label" data-lang="en">Schedule</div>
+        <div class="block-label" data-lang="es">Horarios</div>
+        <div class="grid-2">
+          <div class="mini-card">
+            <div class="mini-card-label" data-lang="fr">Arrivée</div>
+            <div class="mini-card-label" data-lang="en">Check-in</div>
+            <div class="mini-card-label" data-lang="es">Llegada</div>
+            <div class="mini-card-value">À partir de 15h</div>
+            <div class="mini-card-sub" data-lang="fr">Flexibilité possible, à convenir</div>
+            <div class="mini-card-sub" data-lang="en">Flexible, please arrange in advance</div>
+            <div class="mini-card-sub" data-lang="es">Flexible, a coordinar</div>
+          </div>
+          <div class="mini-card">
+            <div class="mini-card-label" data-lang="fr">Départ</div>
+            <div class="mini-card-label" data-lang="en">Check-out</div>
+            <div class="mini-card-label" data-lang="es">Salida</div>
+            <div class="mini-card-value">Avant 11h</div>
+            <div class="mini-card-sub" data-lang="fr">Merci de laisser les clés sur la table</div>
+            <div class="mini-card-sub" data-lang="en">Please leave the keys on the table</div>
+            <div class="mini-card-sub" data-lang="es">Deja las llaves sobre la mesa</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 2. WIFI & ÉQUIPEMENTS -->
+  <div class="section-card" id="wifi">
+    <div class="section-header" onclick="toggleSection(this)">
+      <div class="section-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1"/></svg>
+      </div>
+      <div class="section-title-group">
+        <div class="section-title" data-lang="fr">Wifi &amp; équipements</div>
+        <div class="section-title" data-lang="en">Wifi &amp; appliances</div>
+        <div class="section-title" data-lang="es">Wifi &amp; electrodomésticos</div>
+        <div class="section-subtitle" data-lang="fr">Connexion, TV, appareils</div>
+        <div class="section-subtitle" data-lang="en">Connection, TV, devices</div>
+        <div class="section-subtitle" data-lang="es">Conexión, TV, aparatos</div>
+      </div>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="section-body">
+
+      <div class="content-block">
+        <div class="block-label" data-lang="fr">Connexion Wifi</div>
+        <div class="block-label" data-lang="en">Wifi connection</div>
+        <div class="block-label" data-lang="es">Conexión Wifi</div>
+
+        <div class="wifi-meta">
+          <div class="wifi-row">
+            <span data-lang="fr">Réseau</span><span data-lang="en">Network</span><span data-lang="es">Red</span>
+            <strong>NomDuReseau</strong>
+          </div>
+          <div class="wifi-row">
+            <span data-lang="fr">Mot de passe</span><span data-lang="en">Password</span><span data-lang="es">Contraseña</span>
+            <strong>MotDePasseWifi</strong>
+          </div>
+        </div>
+
+        <button class="wifi-btn" onclick="connectWifi()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1"/></svg>
+          <span data-lang="fr">Se connecter en un clic</span>
+          <span data-lang="en">Connect in one tap</span>
+          <span data-lang="es">Conectarse con un toque</span>
+        </button>
+        <p style="font-size:0.75rem; color:var(--ink-3); margin-top:6px;" data-lang="fr">Ou scannez le QR code affiché sur le frigo</p>
+        <p style="font-size:0.75rem; color:var(--ink-3); margin-top:6px;" data-lang="en">Or scan the QR code on the fridge</p>
+        <p style="font-size:0.75rem; color:var(--ink-3); margin-top:6px;" data-lang="es">O escanea el código QR pegado en el frigorífico</p>
+      </div>
+
+      <div class="content-block">
+        <div class="block-label" data-lang="fr">Appareils</div>
+        <div class="block-label" data-lang="en">Appliances</div>
+        <div class="block-label" data-lang="es">Aparatos</div>
+        <div class="block-value">
+          <p data-lang="fr">📺 <strong>TV</strong> — à compléter<br>🔇 <strong>Sonos</strong> — à compléter<br>🧺 <strong>Lave-linge</strong> — à compléter<br>♨️ <strong>Radiateurs</strong> — à compléter</p>
+          <p data-lang="en">📺 <strong>TV</strong> — to complete<br>🔇 <strong>Sonos</strong> — to complete<br>🧺 <strong>Washing machine</strong> — to complete<br>♨️ <strong>Heaters</strong> — to complete</p>
+          <p data-lang="es">📺 <strong>TV</strong> — por completar<br>🔇 <strong>Sonos</strong> — por completar<br>🧺 <strong>Lavadora</strong> — por completar<br>♨️ <strong>Radiadores</strong> — por completar</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 3. CUISINE -->
+  <div class="section-card" id="cuisine">
+    <div class="section-header" onclick="toggleSection(this)">
+      <div class="section-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+      </div>
+      <div class="section-title-group">
+        <div class="section-title" data-lang="fr">Cuisine</div>
+        <div class="section-title" data-lang="en">Kitchen</div>
+        <div class="section-title" data-lang="es">Cocina</div>
+        <div class="section-subtitle" data-lang="fr">Équipements &amp; consignes</div>
+        <div class="section-subtitle" data-lang="en">Equipment &amp; tips</div>
+        <div class="section-subtitle" data-lang="es">Equipamiento &amp; consejos</div>
+      </div>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="section-body">
+
+      <div class="content-block">
+        <div class="block-label" data-lang="fr">Équipements disponibles</div>
+        <div class="block-label" data-lang="en">Available equipment</div>
+        <div class="block-label" data-lang="es">Equipamiento disponible</div>
+        <div class="block-value">
+          <p data-lang="fr">☕ Cafetière — à compléter<br>🍞 Grille-pain — à compléter<br>🔥 Four / plaques — à compléter<br>❄️ Réfrigérateur — à compléter</p>
+          <p data-lang="en">☕ Coffee maker — to complete<br>🍞 Toaster — to complete<br>🔥 Oven / hob — to complete<br>❄️ Fridge — to complete</p>
+          <p data-lang="es">☕ Cafetera — por completar<br>🍞 Tostadora — por completar<br>🔥 Horno / placa — por completar<br>❄️ Frigorífico — por completar</p>
+        </div>
+      </div>
+
+      <div class="content-block">
+        <div class="block-label" data-lang="fr">Tri sélectif</div>
+        <div class="block-label" data-lang="en">Recycling &amp; sorting</div>
+        <div class="block-label" data-lang="es">Reciclaje</div>
+        <div class="tri-grid">
+          <div class="tri-card tri-yellow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9l6 6M15 9l-6 6"/></svg>
+            <div class="tri-card-label" data-lang="fr">Jaune</div>
+            <div class="tri-card-label" data-lang="en">Yellow</div>
+            <div class="tri-card-label" data-lang="es">Amarillo</div>
+            <div class="tri-card-sub" data-lang="fr">Plastiques, métaux, cartons</div>
+            <div class="tri-card-sub" data-lang="en">Plastics, metals, cardboard</div>
+            <div class="tri-card-sub" data-lang="es">Plásticos, metales, cartón</div>
+          </div>
+          <div class="tri-card tri-green">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/></svg>
+            <div class="tri-card-label" data-lang="fr">Vert</div>
+            <div class="tri-card-label" data-lang="en">Green</div>
+            <div class="tri-card-label" data-lang="es">Verde</div>
+            <div class="tri-card-sub" data-lang="fr">Verre uniquement</div>
+            <div class="tri-card-sub" data-lang="en">Glass only</div>
+            <div class="tri-card-sub" data-lang="es">Solo vidrio</div>
+          </div>
+          <div class="tri-card tri-gray">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+            <div class="tri-card-label" data-lang="fr">Gris / noir</div>
+            <div class="tri-card-label" data-lang="en">Gray / black</div>
+            <div class="tri-card-label" data-lang="es">Gris / negro</div>
+            <div class="tri-card-sub" data-lang="fr">Déchets non recyclables</div>
+            <div class="tri-card-sub" data-lang="en">Non-recyclable waste</div>
+            <div class="tri-card-sub" data-lang="es">Residuos no reciclables</div>
+          </div>
+        </div>
+        <p style="font-size:0.8rem; color:var(--ink-3); margin-top:0.75rem;" data-lang="fr">Les conteneurs sont situés — à compléter</p>
+        <p style="font-size:0.8rem; color:var(--ink-3); margin-top:0.75rem;" data-lang="en">Bins are located — to complete</p>
+        <p style="font-size:0.8rem; color:var(--ink-3); margin-top:0.75rem;" data-lang="es">Los contenedores están — por completar</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 4. RÈGLES -->
+  <div class="section-card" id="regles">
+    <div class="section-header" onclick="toggleSection(this)">
+      <div class="section-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6M9 12h6M9 15h4"/></svg>
+      </div>
+      <div class="section-title-group">
+        <div class="section-title" data-lang="fr">Règles du logement</div>
+        <div class="section-title" data-lang="en">House rules</div>
+        <div class="section-title" data-lang="es">Normas del alojamiento</div>
+        <div class="section-subtitle" data-lang="fr">Pour un séjour serein</div>
+        <div class="section-subtitle" data-lang="en">For a peaceful stay</div>
+        <div class="section-subtitle" data-lang="es">Para una estancia tranquila</div>
+      </div>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="section-body">
+      <div class="content-block">
+        <div class="block-value">
+          <p data-lang="fr">🚬 Non-fumeur dans l'appartement<br>🐾 Animaux — à préciser<br>🔊 Niveau sonore — à préciser (copropriété)<br>🎉 Fêtes — à préciser<br>♻️ Merci de respecter le tri sélectif</p>
+          <p data-lang="en">🚬 No smoking inside<br>🐾 Pets — to specify<br>🔊 Noise — to specify (shared building)<br>🎉 Parties — to specify<br>♻️ Please sort your waste</p>
+          <p data-lang="es">🚬 No fumar dentro<br>🐾 Mascotas — a especificar<br>🔊 Ruido — a especificar (edificio compartido)<br>🎉 Fiestas — a especificar<br>♻️ Por favor recicla</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. TRANSPORTS -->
+  <div class="section-card" id="transports">
+    <div class="section-header" onclick="toggleSection(this)">
+      <div class="section-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+      </div>
+      <div class="section-title-group">
+        <div class="section-title" data-lang="fr">Transports</div>
+        <div class="section-title" data-lang="en">Getting around</div>
+        <div class="section-title" data-lang="es">Transportes</div>
+        <div class="section-subtitle" data-lang="fr">Métro, bus, vélo, parking</div>
+        <div class="section-subtitle" data-lang="en">Metro, bus, bike, parking</div>
+        <div class="section-subtitle" data-lang="es">Metro, bus, bici, aparcamiento</div>
+      </div>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="section-body">
+      <div class="content-block">
+        <div class="block-value">
+          <p data-lang="fr">🚇 <strong>Métro / tramway</strong> — à compléter (ligne, arrêt, distance)<br>🚌 <strong>Bus</strong> — à compléter<br>🚲 <strong>Vélo libre-service</strong> — à compléter<br>🚗 <strong>Parking</strong> — à compléter</p>
+          <p data-lang="en">🚇 <strong>Metro / tram</strong> — to complete (line, stop, distance)<br>🚌 <strong>Bus</strong> — to complete<br>🚲 <strong>Bike sharing</strong> — to complete<br>🚗 <strong>Parking</strong> — to complete</p>
+          <p data-lang="es">🚇 <strong>Metro / tranvía</strong> — por completar (línea, parada, distancia)<br>🚌 <strong>Autobús</strong> — por completar<br>🚲 <strong>Bicicletas compartidas</strong> — por completar<br>🚗 <strong>Aparcamiento</strong> — por completar</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. BONS PLANS -->
+  <div class="section-card" id="bons-plans">
+    <div class="section-header" onclick="toggleSection(this)">
+      <div class="section-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+      </div>
+      <div class="section-title-group">
+        <div class="section-title" data-lang="fr">Bons plans du quartier</div>
+        <div class="section-title" data-lang="en">Neighbourhood tips</div>
+        <div class="section-title" data-lang="es">Recomendaciones del barrio</div>
+        <div class="section-subtitle" data-lang="fr">Nos adresses préférées</div>
+        <div class="section-subtitle" data-lang="en">Our favourite spots</div>
+        <div class="section-subtitle" data-lang="es">Nuestros sitios favoritos</div>
+      </div>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="section-body">
+
+      <div class="content-block">
+        <div class="block-label" data-lang="fr">Restaurants &amp; cafés</div>
+        <div class="block-label" data-lang="en">Restaurants &amp; cafés</div>
+        <div class="block-label" data-lang="es">Restaurantes &amp; cafés</div>
+
+        <div class="place-row">
+          <div class="place-name"><span class="place-tag">Café</span>Nom du café — à compléter</div>
+          <div class="place-desc" data-lang="fr">Description, horaires — à compléter</div>
+          <div class="place-desc" data-lang="en">Description, hours — to complete</div>
+          <div class="place-desc" data-lang="es">Descripción, horario — por completar</div>
+        </div>
+        <div class="place-row">
+          <div class="place-name"><span class="place-tag">Resto</span>Nom du restaurant — à compléter</div>
+          <div class="place-desc" data-lang="fr">Description — à compléter</div>
+          <div class="place-desc" data-lang="en">Description — to complete</div>
+          <div class="place-desc" data-lang="es">Descripción — por completar</div>
+        </div>
+      </div>
+
+      <div class="content-block">
+        <div class="block-label" data-lang="fr">Marchés &amp; commerces</div>
+        <div class="block-label" data-lang="en">Markets &amp; shops</div>
+        <div class="block-label" data-lang="es">Mercados &amp; tiendas</div>
+        <div class="place-row">
+          <div class="place-name"><span class="place-tag">Marché</span>Nom — à compléter</div>
+          <div class="place-desc" data-lang="fr">Jours, horaires — à compléter</div>
+          <div class="place-desc" data-lang="en">Days, hours — to complete</div>
+          <div class="place-desc" data-lang="es">Días, horario — por completar</div>
+        </div>
+        <div class="place-row">
+          <div class="place-name"><span class="place-tag">Supermarché</span>Nom — à compléter</div>
+          <div class="place-desc" data-lang="fr">Adresse, horaires — à compléter</div>
+          <div class="place-desc" data-lang="en">Address, hours — to complete</div>
+          <div class="place-desc" data-lang="es">Dirección, horario — por completar</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 7. URGENCES -->
+  <div class="section-card" id="urgences">
+    <div class="section-header" onclick="toggleSection(this)">
+      <div class="section-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.41 2 2 0 0 1 3.6 1.21h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.91A16 16 0 0 0 15.09 16.09l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+      </div>
+      <div class="section-title-group">
+        <div class="section-title" data-lang="fr">Urgences &amp; contacts</div>
+        <div class="section-title" data-lang="en">Emergency contacts</div>
+        <div class="section-title" data-lang="es">Urgencias &amp; contactos</div>
+        <div class="section-subtitle" data-lang="fr">Numéros utiles</div>
+        <div class="section-subtitle" data-lang="en">Useful numbers</div>
+        <div class="section-subtitle" data-lang="es">Números útiles</div>
+      </div>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="section-body">
+      <div class="contact-row">
+        <div class="contact-avatar">👤</div>
+        <div class="contact-info">
+          <div class="contact-name" data-lang="fr">Votre hôte</div>
+          <div class="contact-name" data-lang="en">Your host</div>
+          <div class="contact-name" data-lang="es">Vuestro anfitrión</div>
+          <div class="contact-role" data-lang="fr">Pour toute question</div>
+          <div class="contact-role" data-lang="en">For any question</div>
+          <div class="contact-role" data-lang="es">Para cualquier pregunta</div>
+        </div>
+        <a href="tel:+33XXXXXXXXX" class="contact-link">+33 — à compléter</a>
+      </div>
+      <div class="contact-row">
+        <div class="contact-avatar">🚨</div>
+        <div class="contact-info">
+          <div class="contact-name" data-lang="fr">SAMU / Urgences</div>
+          <div class="contact-name" data-lang="en">Emergency services</div>
+          <div class="contact-name" data-lang="es">Servicios de emergencia</div>
+          <div class="contact-role">15 · 17 · 18 · 112</div>
+        </div>
+        <a href="tel:112" class="contact-link">112</a>
+      </div>
+      <div class="contact-row">
+        <div class="contact-avatar">🔧</div>
+        <div class="contact-info">
+          <div class="contact-name" data-lang="fr">Plombier / dépannage</div>
+          <div class="contact-name" data-lang="en">Plumber / repairs</div>
+          <div class="contact-name" data-lang="es">Fontanero / reparaciones</div>
+          <div class="contact-role" data-lang="fr">En cas de problème technique</div>
+          <div class="contact-role" data-lang="en">For technical issues</div>
+          <div class="contact-role" data-lang="es">Para problemas técnicos</div>
+        </div>
+        <a href="tel:+33XXXXXXXXX" class="contact-link">À compléter</a>
+      </div>
+      <div class="contact-row">
+        <div class="contact-avatar">🏥</div>
+        <div class="contact-info">
+          <div class="contact-name" data-lang="fr">Pharmacie / hôpital</div>
+          <div class="contact-name" data-lang="en">Pharmacy / hospital</div>
+          <div class="contact-name" data-lang="es">Farmacia / hospital</div>
+          <div class="contact-role" data-lang="fr">La plus proche — à compléter</div>
+          <div class="contact-role" data-lang="en">Nearest — to complete</div>
+          <div class="contact-role" data-lang="es">El más cercano — por completar</div>
+        </div>
+        <a href="#" class="contact-link">À compléter</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. CHECKLIST DÉPART -->
+  <div class="section-card" id="checklist">
+    <div class="section-header" onclick="toggleSection(this)">
+      <div class="section-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      </div>
+      <div class="section-title-group">
+        <div class="section-title" data-lang="fr">Checklist départ</div>
+        <div class="section-title" data-lang="en">Departure checklist</div>
+        <div class="section-title" data-lang="es">Lista de salida</div>
+        <div class="section-subtitle" data-lang="fr">Avant de rendre les clés</div>
+        <div class="section-subtitle" data-lang="en">Before handing back the keys</div>
+        <div class="section-subtitle" data-lang="es">Antes de devolver las llaves</div>
+      </div>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="section-body">
+      <ul class="checklist" id="departure-list">
+        <li onclick="toggleCheck(this)">
+          <div class="check-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 13l4 4L19 7"/></svg></div>
+          <span data-lang="fr">Laisser les clés sur la table de l'entrée</span>
+          <span data-lang="en">Leave keys on the entrance table</span>
+          <span data-lang="es">Dejar las llaves en la mesa de la entrada</span>
+        </li>
+        <li onclick="toggleCheck(this)">
+          <div class="check-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 13l4 4L19 7"/></svg></div>
+          <span data-lang="fr">Fermer toutes les fenêtres</span>
+          <span data-lang="en">Close all windows</span>
+          <span data-lang="es">Cerrar todas las ventanas</span>
+        </li>
+        <li onclick="toggleCheck(this)">
+          <div class="check-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 13l4 4L19 7"/></svg></div>
+          <span data-lang="fr">Éteindre toutes les lumières</span>
+          <span data-lang="en">Turn off all lights</span>
+          <span data-lang="es">Apagar todas las luces</span>
+        </li>
+        <li onclick="toggleCheck(this)">
+          <div class="check-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 13l4 4L19 7"/></svg></div>
+          <span data-lang="fr">Vider et nettoyer le réfrigérateur</span>
+          <span data-lang="en">Empty and clean the fridge</span>
+          <span data-lang="es">Vaciar y limpiar el frigorífico</span>
+        </li>
+        <li onclick="toggleCheck(this)">
+          <div class="check-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 13l4 4L19 7"/></svg></div>
+          <span data-lang="fr">Sortir les poubelles</span>
+          <span data-lang="en">Take out the bins</span>
+          <span data-lang="es">Sacar la basura</span>
+        </li>
+        <li onclick="toggleCheck(this)">
+          <div class="check-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 13l4 4L19 7"/></svg></div>
+          <span data-lang="fr">Mettre les draps / serviettes dans la baignoire</span>
+          <span data-lang="en">Leave sheets / towels in the bathtub</span>
+          <span data-lang="es">Dejar sábanas / toallas en la bañera</span>
+        </li>
+        <li onclick="toggleCheck(this)">
+          <div class="check-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 13l4 4L19 7"/></svg></div>
+          <span data-lang="fr">Couper les radiateurs / la climatisation</span>
+          <span data-lang="en">Turn off heaters / air conditioning</span>
+          <span data-lang="es">Apagar la calefacción / aire acondicionado</span>
+        </li>
+        <li onclick="toggleCheck(this)">
+          <div class="check-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 13l4 4L19 7"/></svg></div>
+          <span data-lang="fr">Laisser un petit mot si quelque chose s'est passé</span>
+          <span data-lang="en">Leave a note if anything happened</span>
+          <span data-lang="es">Dejar una nota si algo ocurrió</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <span data-lang="fr">Bon séjour chez nous 🏠 — Merci d'être nos hôtes HomeExchange</span>
+  <span data-lang="en">Enjoy your stay 🏠 — Thank you for being our HomeExchange guests</span>
+  <span data-lang="es">¡Que disfrutes tu estancia! 🏠 — Gracias por ser nuestros huéspedes</span>
+</footer>
+
+<script>
+  var currentLang = 'fr';
+
+  function setLang(lang) {
+    currentLang = lang;
+    document.querySelectorAll('[data-lang]').forEach(function(el) {
+      el.classList.remove('active');
+    });
+    document.querySelectorAll('[data-lang="' + lang + '"]').forEach(function(el) {
+      el.classList.add('active');
+    });
+    document.querySelectorAll('.lang-btn').forEach(function(btn) {
+      btn.classList.toggle('active', btn.textContent.trim() === lang.toUpperCase());
+    });
+    document.documentElement.lang = lang;
+  }
+
+  function toggleSection(header) {
+    var card = header.parentElement;
+    card.classList.toggle('open');
+  }
+
+  function toggleCheck(li) {
+    li.classList.toggle('done');
+  }
+
+  function connectWifi() {
+    var ssid = 'NomDuReseau';
+    var password = 'MotDePasseWifi';
+    var wifiUri = 'WIFI:S:' + ssid + ';T:WPA;P:' + password + ';;';
+    window.location.href = wifiUri;
+  }
+
+  // Smooth scroll for section pills
+  document.querySelectorAll('a[href^="#"]').forEach(function(a) {
+    a.addEventListener('click', function(e) {
+      e.preventDefault();
+      var target = document.querySelector(this.getAttribute('href'));
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (!target.classList.contains('open')) {
+          target.querySelector('.section-header').click();
+        }
+      }
+    });
+  });
+
+  // Init: set lang from first button
+  setLang('fr');
+</script>
+</body>
+</html>
