@@ -23,6 +23,7 @@ export default function VisitorApp({
   const [lang, setLang] = useState<Lang>('fr');
   const [openSection, setOpenSection] = useState<string | null>('arrivee');
   const [checked, setChecked] = useState<Set<number>>(new Set());
+  const [wifiQrOpen, setWifiQrOpen] = useState(false);
 
   const v = (section: string, key: string, translatable: boolean) =>
     getValue(contentMap, section, key, lang, translatable);
@@ -37,12 +38,8 @@ export default function VisitorApp({
     });
   };
 
-  const connectWifi = () => {
-    const ssid = v('wifi', 'wifi_ssid', false);
-    const password = v('wifi', 'wifi_password', false);
-    if (!ssid) return;
-    window.location.href = `WIFI:S:${ssid};T:WPA;P:${password};;`;
-  };
+  const wifiSsid = v('wifi', 'wifi_ssid', false);
+  const wifiPassword = v('wifi', 'wifi_password', false);
 
   return (
     <div className="min-h-screen">
@@ -88,7 +85,13 @@ export default function VisitorApp({
             onClick={(e) => {
               e.preventDefault();
               setOpenSection(s.id);
-              document.getElementById(s.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              // Wait for the accordion layout change (other sections collapsing) to be
+              // painted before measuring the scroll target, otherwise it aims at a stale position.
+              requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                  document.getElementById(s.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                });
+              });
             }}
             className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-border bg-surface text-[0.82rem] text-ink-2 hover:bg-accent-light hover:border-accent/25 hover:text-accent transition-all no-underline"
           >
@@ -103,7 +106,7 @@ export default function VisitorApp({
         {SECTIONS.map((s) => {
           const isOpen = openSection === s.id;
           return (
-            <div key={s.id} id={s.id} className="bg-surface rounded-2xl border border-border overflow-hidden">
+            <div key={s.id} id={s.id} className="scroll-mt-20 bg-surface rounded-2xl border border-border overflow-hidden">
               <div
                 onClick={() => setOpenSection(isOpen ? null : s.id)}
                 className="flex items-center gap-3.5 px-6 py-5 cursor-pointer select-none hover:bg-bg transition-colors"
@@ -134,7 +137,7 @@ export default function VisitorApp({
                   )}
 
                   {s.id === 'arrivee' && <ArriveeBody v={v} lang={lang} />}
-                  {s.id === 'wifi' && <WifiBody v={v} lang={lang} onConnect={connectWifi} />}
+                  {s.id === 'wifi' && <WifiBody v={v} lang={lang} onShowQr={() => setWifiQrOpen(true)} />}
                   {s.id === 'cuisine' && <CuisineBody v={v} lang={lang} />}
                   {s.id === 'regles' && <SimpleBody value={v('regles', 'rules_note', true)} />}
                   {s.id === 'transports' && <SimpleBody value={v('transports', 'transports_note', true)} />}
@@ -151,6 +154,37 @@ export default function VisitorApp({
       <footer className="max-w-[720px] mx-auto px-4 sm:px-8 pt-4 pb-12 text-center text-xs text-ink-3">
         {t(UI_LABELS.footer, lang)}
       </footer>
+
+      {wifiQrOpen && wifiSsid && (
+        <WifiQrModal ssid={wifiSsid} password={wifiPassword} lang={lang} onClose={() => setWifiQrOpen(false)} />
+      )}
+    </div>
+  );
+}
+
+function WifiQrModal({ ssid, password, lang, onClose }: { ssid: string; password: string; lang: Lang; onClose: () => void }) {
+  const wifiUri = `WIFI:S:${ssid};T:WPA;P:${password};;`;
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(wifiUri)}`;
+
+  return (
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4"
+      onClick={onClose}
+    >
+      <div
+        className="bg-surface rounded-2xl p-6 max-w-xs w-full text-center"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <p className="text-sm text-ink-2 mb-4">{t(UI_LABELS.wifi_qr_hint, lang)}</p>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={qrUrl} alt="QR code wifi" width={240} height={240} className="mx-auto rounded-sm" />
+        <button
+          onClick={onClose}
+          className="mt-5 px-5 py-2.5 border border-border rounded-sm text-sm font-medium"
+        >
+          {t(UI_LABELS.close, lang)}
+        </button>
+      </div>
     </div>
   );
 }
@@ -234,7 +268,7 @@ function ArriveeBody({ v, lang }: { v: VFn; lang: Lang }) {
   );
 }
 
-function WifiBody({ v, lang, onConnect }: { v: VFn; lang: Lang; onConnect: () => void }) {
+function WifiBody({ v, lang, onShowQr }: { v: VFn; lang: Lang; onShowQr: () => void }) {
   const ssid = v('wifi', 'wifi_ssid', false);
   const password = v('wifi', 'wifi_password', false);
   const devicesNote = v('wifi', 'devices_note', true);
@@ -254,14 +288,15 @@ function WifiBody({ v, lang, onConnect }: { v: VFn; lang: Lang; onConnect: () =>
             <strong className="font-medium">{password || '—'}</strong>
           </div>
         </div>
-        <button
-          onClick={onConnect}
-          className="inline-flex items-center gap-2.5 px-5 py-3 bg-accent text-white rounded-sm text-sm font-medium hover:opacity-90 transition-opacity"
-        >
-          <Icon name="wifi" className="w-[18px] h-[18px]" />
-          {t(UI_LABELS.connect_wifi, lang)}
-        </button>
-        <p className="text-xs text-ink-3 mt-1.5">{t(UI_LABELS.wifi_qr_hint, lang)}</p>
+        {ssid && (
+          <button
+            onClick={onShowQr}
+            className="inline-flex items-center gap-2.5 px-5 py-3 bg-accent text-white rounded-sm text-sm font-medium hover:opacity-90 transition-opacity"
+          >
+            <Icon name="wifi" className="w-[18px] h-[18px]" />
+            {t(UI_LABELS.connect_wifi, lang)}
+          </button>
+        )}
       </Block>
       <Block>
         <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line">
