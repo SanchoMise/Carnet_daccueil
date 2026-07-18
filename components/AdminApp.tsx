@@ -245,46 +245,52 @@ function PlacesEditor({
   onChange: (places: PlaceRow[]) => void;
   flash: (msg: string) => void;
 }) {
-  const [form, setForm] = useState<Partial<PlaceRow>>(emptyPlace());
+  const [newForm, setNewForm] = useState<Partial<PlaceRow>>(emptyPlace());
+  const [editForm, setEditForm] = useState<Partial<PlaceRow>>(emptyPlace());
   const [editingId, setEditingId] = useState<string | null>(null);
   const headers = { 'Content-Type': 'application/json', 'x-admin-key': adminKey };
 
-  const [submitting, setSubmitting] = useState(false);
+  const [addSubmitting, setAddSubmitting] = useState(false);
+  const [editSubmitting, setEditSubmitting] = useState(false);
 
-  const submit = async () => {
-    if (!form.name) return;
-    setSubmitting(true);
+  const buildPayload = async (form: Partial<PlaceRow>) => {
+    if (!form.description_fr?.trim()) return form;
+    const [description_en, description_es] = await translateBatch(
+      [
+        { text: form.description_fr, target: 'en' },
+        { text: form.description_fr, target: 'es' },
+      ],
+      adminKey
+    );
+    return { ...form, description_en, description_es };
+  };
 
-    let payload = form;
-    if (form.description_fr?.trim()) {
-      const [description_en, description_es] = await translateBatch(
-        [
-          { text: form.description_fr, target: 'en' },
-          { text: form.description_fr, target: 'es' },
-        ],
-        adminKey
-      );
-      payload = { ...form, description_en, description_es };
+  const submitNew = async () => {
+    if (!newForm.name) return;
+    setAddSubmitting(true);
+    const payload = await buildPayload(newForm);
+    const res = await fetch('/api/places', { method: 'POST', headers, body: JSON.stringify(payload) });
+    const json = await res.json();
+    if (res.ok) {
+      onChange([...places, json.data]);
+      flash('Adresse ajoutée ✓');
+      setNewForm(emptyPlace());
     }
+    setAddSubmitting(false);
+  };
 
-    if (editingId) {
-      const res = await fetch(`/api/places/${editingId}`, { method: 'PATCH', headers, body: JSON.stringify(payload) });
-      const json = await res.json();
-      if (res.ok) {
-        onChange(places.map((p) => (p.id === editingId ? json.data : p)));
-        flash('Adresse mise à jour ✓');
-      }
-    } else {
-      const res = await fetch('/api/places', { method: 'POST', headers, body: JSON.stringify(payload) });
-      const json = await res.json();
-      if (res.ok) {
-        onChange([...places, json.data]);
-        flash('Adresse ajoutée ✓');
-      }
+  const submitEdit = async () => {
+    if (!editingId || !editForm.name) return;
+    setEditSubmitting(true);
+    const payload = await buildPayload(editForm);
+    const res = await fetch(`/api/places/${editingId}`, { method: 'PATCH', headers, body: JSON.stringify(payload) });
+    const json = await res.json();
+    if (res.ok) {
+      onChange(places.map((p) => (p.id === editingId ? json.data : p)));
+      flash('Adresse mise à jour ✓');
+      setEditingId(null);
     }
-    setSubmitting(false);
-    setForm(emptyPlace());
-    setEditingId(null);
+    setEditSubmitting(false);
   };
 
   const remove = async (id: string) => {
@@ -292,11 +298,12 @@ function PlacesEditor({
     if (res.ok) {
       onChange(places.filter((p) => p.id !== id));
       flash('Adresse supprimée ✓');
+      if (editingId === id) setEditingId(null);
     }
   };
 
   const edit = (p: PlaceRow) => {
-    setForm(p);
+    setEditForm(p);
     setEditingId(p.id);
   };
 
@@ -306,80 +313,106 @@ function PlacesEditor({
 
       <div className="flex flex-col gap-2 mb-6">
         {places.map((p) => (
-          <div key={p.id} className="flex items-center justify-between border border-border rounded-sm px-4 py-2.5">
-            <div>
-              <span className="text-xs px-2 py-0.5 rounded-full bg-accent-light text-accent font-medium mr-2">
-                {p.category || '—'}
-              </span>
-              <span className="text-sm font-medium">{p.name}</span>
+          <div key={p.id} className="border border-border rounded-sm">
+            <div className="flex items-center justify-between px-4 py-2.5">
+              <div>
+                <span className="text-xs px-2 py-0.5 rounded-full bg-accent-light text-accent font-medium mr-2">
+                  {p.category || '—'}
+                </span>
+                <span className="text-sm font-medium">{p.name}</span>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => (editingId === p.id ? setEditingId(null) : edit(p))}
+                  className="text-xs text-accent font-medium"
+                >
+                  {editingId === p.id ? 'Fermer' : 'Modifier'}
+                </button>
+                <button onClick={() => remove(p.id)} className="text-xs text-red-600 font-medium">
+                  Supprimer
+                </button>
+              </div>
             </div>
-            <div className="flex gap-2">
-              <button onClick={() => edit(p)} className="text-xs text-accent font-medium">
-                Modifier
-              </button>
-              <button onClick={() => remove(p.id)} className="text-xs text-red-600 font-medium">
-                Supprimer
-              </button>
-            </div>
+            {editingId === p.id && (
+              <div className="border-t border-border p-4 bg-bg/50">
+                <PlaceFields form={editForm} setForm={setEditForm} />
+                <div className="flex gap-2 mt-4">
+                  <button
+                    onClick={submitEdit}
+                    disabled={editSubmitting}
+                    className="px-5 py-2.5 bg-accent text-white rounded-sm text-sm font-medium hover:opacity-90 disabled:opacity-50"
+                  >
+                    {editSubmitting ? 'Enregistrement…' : 'Mettre à jour'}
+                  </button>
+                  <button
+                    onClick={() => setEditingId(null)}
+                    className="px-5 py-2.5 border border-border rounded-sm text-sm font-medium"
+                  >
+                    Annuler
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         ))}
         {places.length === 0 && <p className="text-sm text-ink-3">Aucune adresse pour le moment.</p>}
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        <input
-          placeholder="Nom"
-          value={form.name ?? ''}
-          onChange={(e) => setForm({ ...form, name: e.target.value })}
-          className="border border-border rounded-sm px-3 py-2 text-sm"
-        />
-        <input
-          placeholder="Catégorie (ex: Café, Resto, Marché)"
-          value={form.category ?? ''}
-          onChange={(e) => setForm({ ...form, category: e.target.value })}
-          className="border border-border rounded-sm px-3 py-2 text-sm"
-        />
-        <textarea
-          placeholder="Description (FR — traduite auto en EN/ES) 🌐"
-          value={form.description_fr ?? ''}
-          onChange={(e) => setForm({ ...form, description_fr: e.target.value })}
-          className="border border-border rounded-sm px-3 py-2 text-sm col-span-2"
-          rows={2}
-        />
-        <input
-          placeholder="Adresse postale"
-          value={form.address ?? ''}
-          onChange={(e) => setForm({ ...form, address: e.target.value })}
-          className="border border-border rounded-sm px-3 py-2 text-sm"
-        />
-        <input
-          placeholder="Lien Google Maps (optionnel)"
-          value={form.maps_url ?? ''}
-          onChange={(e) => setForm({ ...form, maps_url: e.target.value })}
-          className="border border-border rounded-sm px-3 py-2 text-sm"
-        />
-      </div>
-
+      <h3 className="text-sm font-medium mb-3">Ajouter une adresse</h3>
+      <PlaceFields form={newForm} setForm={setNewForm} />
       <div className="flex gap-2 mt-4">
         <button
-          onClick={submit}
-          disabled={submitting}
+          onClick={submitNew}
+          disabled={addSubmitting}
           className="px-5 py-2.5 bg-accent text-white rounded-sm text-sm font-medium hover:opacity-90 disabled:opacity-50"
         >
-          {submitting ? 'Enregistrement…' : editingId ? 'Mettre à jour' : 'Ajouter'}
+          {addSubmitting ? 'Enregistrement…' : 'Ajouter'}
         </button>
-        {editingId && (
-          <button
-            onClick={() => {
-              setForm(emptyPlace());
-              setEditingId(null);
-            }}
-            className="px-5 py-2.5 border border-border rounded-sm text-sm font-medium"
-          >
-            Annuler
-          </button>
-        )}
       </div>
+    </div>
+  );
+}
+
+function PlaceFields({
+  form,
+  setForm,
+}: {
+  form: Partial<PlaceRow>;
+  setForm: (form: Partial<PlaceRow>) => void;
+}) {
+  return (
+    <div className="grid grid-cols-2 gap-3">
+      <input
+        placeholder="Nom"
+        value={form.name ?? ''}
+        onChange={(e) => setForm({ ...form, name: e.target.value })}
+        className="border border-border rounded-sm px-3 py-2 text-sm"
+      />
+      <input
+        placeholder="Catégorie (ex: Café, Resto, Marché)"
+        value={form.category ?? ''}
+        onChange={(e) => setForm({ ...form, category: e.target.value })}
+        className="border border-border rounded-sm px-3 py-2 text-sm"
+      />
+      <textarea
+        placeholder="Description (FR — traduite auto en EN/ES) 🌐"
+        value={form.description_fr ?? ''}
+        onChange={(e) => setForm({ ...form, description_fr: e.target.value })}
+        className="border border-border rounded-sm px-3 py-2 text-sm col-span-2"
+        rows={2}
+      />
+      <input
+        placeholder="Adresse postale"
+        value={form.address ?? ''}
+        onChange={(e) => setForm({ ...form, address: e.target.value })}
+        className="border border-border rounded-sm px-3 py-2 text-sm"
+      />
+      <input
+        placeholder="Lien Google Maps (optionnel)"
+        value={form.maps_url ?? ''}
+        onChange={(e) => setForm({ ...form, maps_url: e.target.value })}
+        className="border border-border rounded-sm px-3 py-2 text-sm"
+      />
     </div>
   );
 }
