@@ -378,6 +378,11 @@ function BonsPlansBody({ places, lang }: { places: PlaceRow[]; lang: Lang }) {
                   </span>
                 )}
                 {p.name}
+                {p.walk_minutes != null && (
+                  <span className="text-xs text-ink-3 font-normal ml-1.5">
+                    · 🚶 {p.walk_minutes} {t(UI_LABELS.walk_minutes, lang)}
+                  </span>
+                )}
               </div>
               {descFor(p) && <div className="text-sm text-ink-2 mb-1">{descFor(p)}</div>}
               {(p.maps_url || p.address) && (

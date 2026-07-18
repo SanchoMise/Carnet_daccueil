@@ -20,6 +20,7 @@ export type PlaceRow = {
   description_es: string | null;
   address: string | null;
   maps_url: string | null;
+  walk_minutes: number | null;
   position: number;
   created_at: string;
 };

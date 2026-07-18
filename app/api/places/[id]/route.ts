@@ -21,6 +21,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       ...(body.description_es !== undefined && { description_es: body.description_es }),
       ...(body.address !== undefined && { address: body.address }),
       ...(mapsUrl !== undefined && { maps_url: mapsUrl }),
+      ...(body.walk_minutes !== undefined && { walk_minutes: body.walk_minutes }),
       ...(body.position !== undefined && { position: body.position }),
     })
     .eq('id', params.id)

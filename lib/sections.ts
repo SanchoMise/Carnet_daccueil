@@ -158,4 +158,5 @@ export const UI_LABELS = {
   plumber_role: { fr: 'En cas de problème technique', en: 'For technical issues', es: 'Para problemas técnicos' },
   pharmacy: { fr: 'Pharmacie / hôpital', en: 'Pharmacy / hospital', es: 'Farmacia / hospital' },
   to_complete: { fr: 'À compléter', en: 'To complete', es: 'Por completar' },
+  walk_minutes: { fr: 'min à pied', en: 'min walk', es: 'min a pie' },
 } satisfies Record<string, Record<Lang, string>>;

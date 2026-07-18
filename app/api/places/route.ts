@@ -40,6 +40,7 @@ export async function POST(request: NextRequest) {
       description_es: body.description_es ?? null,
       address: body.address ?? null,
       maps_url: mapsUrl,
+      walk_minutes: body.walk_minutes ?? null,
       position: body.position ?? 0,
     })
     .select()

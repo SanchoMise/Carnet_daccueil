@@ -22,9 +22,13 @@ create table if not exists places (
   description_es text,
   address text,
   maps_url text,
+  walk_minutes integer,
   position integer default 0,
   created_at timestamptz default now()
 );
+
+-- Migration : ajoute la colonne si la table "places" existe déjà sans elle.
+alter table places add column if not exists walk_minutes integer;
 
 create table if not exists images (
   id uuid primary key default gen_random_uuid(),

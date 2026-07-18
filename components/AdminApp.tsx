@@ -231,7 +231,7 @@ function ContentForm({
 }
 
 function emptyPlace(): Partial<PlaceRow> {
-  return { name: '', category: '', description_fr: '', description_en: '', description_es: '', address: '', maps_url: '' };
+  return { name: '', category: '', description_fr: '', description_en: '', description_es: '', address: '', maps_url: '', walk_minutes: null };
 }
 
 function PlacesEditor({
@@ -411,6 +411,14 @@ function PlaceFields({
         placeholder="Lien Google Maps (optionnel)"
         value={form.maps_url ?? ''}
         onChange={(e) => setForm({ ...form, maps_url: e.target.value })}
+        className="border border-border rounded-sm px-3 py-2 text-sm"
+      />
+      <input
+        type="number"
+        min={0}
+        placeholder="Distance à pied (minutes)"
+        value={form.walk_minutes ?? ''}
+        onChange={(e) => setForm({ ...form, walk_minutes: e.target.value === '' ? null : Number(e.target.value) })}
         className="border border-border rounded-sm px-3 py-2 text-sm"
       />
     </div>
