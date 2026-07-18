@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { SECTIONS } from '@/lib/sections';
-import { ContentMap, ContentRow, ImageRow, Lang, LANGS, PlaceRow } from '@/lib/types';
+import { ContentMap, ContentRow, ImageRow, Lang, PlaceRow } from '@/lib/types';
+import { translateBatch } from '@/lib/translateClient';
 
 type FieldValues = Record<string, Record<Lang, string>>;
 
@@ -166,12 +167,27 @@ function ContentForm({
 
   const save = async () => {
     setSaving(true);
+
+    const translatableFields = fields.filter((f) => f.translatable && values[f.key].fr.trim());
+    const translations: Record<string, { en: string; es: string }> = {};
+
+    if (translatableFields.length > 0) {
+      const items = translatableFields.flatMap((f) => [
+        { text: values[f.key].fr, target: 'en' as const },
+        { text: values[f.key].fr, target: 'es' as const },
+      ]);
+      const results = await translateBatch(items, adminKey);
+      translatableFields.forEach((f, i) => {
+        translations[f.key] = { en: results[i * 2] ?? '', es: results[i * 2 + 1] ?? '' };
+      });
+    }
+
     const items: { section: string; key: string; lang: Lang; value: string }[] = [];
     for (const f of fields) {
       if (f.translatable) {
-        for (const lang of LANGS) {
-          items.push({ section, key: f.key, lang, value: values[f.key][lang] });
-        }
+        items.push({ section, key: f.key, lang: 'fr', value: values[f.key].fr });
+        items.push({ section, key: f.key, lang: 'en', value: translations[f.key]?.en ?? values[f.key].en });
+        items.push({ section, key: f.key, lang: 'es', value: translations[f.key]?.es ?? values[f.key].es });
       } else {
         items.push({ section, key: f.key, lang: 'fr', value: values[f.key].fr });
       }
@@ -188,35 +204,17 @@ function ContentForm({
   return (
     <div className="bg-surface rounded-2xl border border-border p-6 mb-6">
       <h2 className="font-serif text-lg mb-4">Textes</h2>
+      <p className="text-xs text-ink-3 mb-4">
+        Remplissez uniquement le français : l&apos;anglais et l&apos;espagnol sont générés automatiquement à l&apos;enregistrement.
+      </p>
       <div className="flex flex-col gap-5">
         {fields.map((f) => (
           <div key={f.key}>
             <label className="block text-xs font-medium uppercase tracking-wider text-ink-3 mb-1.5">
               {f.label.fr}
+              {f.translatable && <span className="normal-case font-normal text-ink-3/70"> · 🌐 traduit auto</span>}
             </label>
-            {f.translatable ? (
-              <div className="flex flex-col gap-2">
-                {LANGS.map((lang) => (
-                  <div key={lang} className="flex gap-2 items-start">
-                    <span className="text-xs text-ink-3 w-8 pt-2 shrink-0">{lang.toUpperCase()}</span>
-                    {f.type === 'textarea' ? (
-                      <textarea
-                        value={values[f.key][lang]}
-                        onChange={(e) => setVal(f.key, lang, e.target.value)}
-                        rows={2}
-                        className="flex-1 border border-border rounded-sm px-3 py-2 text-sm"
-                      />
-                    ) : (
-                      <input
-                        value={values[f.key][lang]}
-                        onChange={(e) => setVal(f.key, lang, e.target.value)}
-                        className="flex-1 border border-border rounded-sm px-3 py-2 text-sm"
-                      />
-                    )}
-                  </div>
-                ))}
-              </div>
-            ) : f.type === 'textarea' ? (
+            {f.type === 'textarea' ? (
               <textarea
                 value={values[f.key].fr}
                 onChange={(e) => setVal(f.key, 'fr', e.target.value)}
@@ -263,23 +261,40 @@ function PlacesEditor({
   const [editingId, setEditingId] = useState<string | null>(null);
   const headers = { 'Content-Type': 'application/json', 'x-admin-key': adminKey };
 
+  const [submitting, setSubmitting] = useState(false);
+
   const submit = async () => {
     if (!form.name) return;
+    setSubmitting(true);
+
+    let payload = form;
+    if (form.description_fr?.trim()) {
+      const [description_en, description_es] = await translateBatch(
+        [
+          { text: form.description_fr, target: 'en' },
+          { text: form.description_fr, target: 'es' },
+        ],
+        adminKey
+      );
+      payload = { ...form, description_en, description_es };
+    }
+
     if (editingId) {
-      const res = await fetch(`/api/places/${editingId}`, { method: 'PATCH', headers, body: JSON.stringify(form) });
+      const res = await fetch(`/api/places/${editingId}`, { method: 'PATCH', headers, body: JSON.stringify(payload) });
       const json = await res.json();
       if (res.ok) {
         onChange(places.map((p) => (p.id === editingId ? json.data : p)));
         flash('Adresse mise à jour ✓');
       }
     } else {
-      const res = await fetch('/api/places', { method: 'POST', headers, body: JSON.stringify(form) });
+      const res = await fetch('/api/places', { method: 'POST', headers, body: JSON.stringify(payload) });
       const json = await res.json();
       if (res.ok) {
         onChange([...places, json.data]);
         flash('Adresse ajoutée ✓');
       }
     }
+    setSubmitting(false);
     setForm(emptyPlace());
     setEditingId(null);
   };
@@ -337,23 +352,9 @@ function PlacesEditor({
           className="border border-border rounded-sm px-3 py-2 text-sm"
         />
         <textarea
-          placeholder="Description (FR)"
+          placeholder="Description (FR — traduite auto en EN/ES) 🌐"
           value={form.description_fr ?? ''}
           onChange={(e) => setForm({ ...form, description_fr: e.target.value })}
-          className="border border-border rounded-sm px-3 py-2 text-sm col-span-2"
-          rows={2}
-        />
-        <textarea
-          placeholder="Description (EN)"
-          value={form.description_en ?? ''}
-          onChange={(e) => setForm({ ...form, description_en: e.target.value })}
-          className="border border-border rounded-sm px-3 py-2 text-sm col-span-2"
-          rows={2}
-        />
-        <textarea
-          placeholder="Description (ES)"
-          value={form.description_es ?? ''}
-          onChange={(e) => setForm({ ...form, description_es: e.target.value })}
           className="border border-border rounded-sm px-3 py-2 text-sm col-span-2"
           rows={2}
         />
@@ -372,8 +373,12 @@ function PlacesEditor({
       </div>
 
       <div className="flex gap-2 mt-4">
-        <button onClick={submit} className="px-5 py-2.5 bg-accent text-white rounded-sm text-sm font-medium hover:opacity-90">
-          {editingId ? 'Mettre à jour' : 'Ajouter'}
+        <button
+          onClick={submit}
+          disabled={submitting}
+          className="px-5 py-2.5 bg-accent text-white rounded-sm text-sm font-medium hover:opacity-90 disabled:opacity-50"
+        >
+          {submitting ? 'Enregistrement…' : editingId ? 'Mettre à jour' : 'Ajouter'}
         </button>
         {editingId && (
           <button

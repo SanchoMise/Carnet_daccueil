@@ -30,6 +30,15 @@ Puis exécuter [`supabase/seed.sql`](supabase/seed.sql) pour préremplir le carn
 déjà rédigé (arrivée, cuisine, urgences, bons plans du quartier — en français uniquement ; les
 traductions EN/ES restent à ajouter via `/admin`). Ce script est idempotent, il peut être rejoué.
 
+### Traduction automatique
+
+Dans `/admin`, il suffit de remplir le français : l'anglais et l'espagnol sont générés
+automatiquement à l'enregistrement (textes des rubriques et descriptions des bons plans),
+via l'API gratuite [MyMemory](https://mymemory.translated.net/) (`app/api/translate/route.ts`,
+aucune clé requise). Le quota gratuit est limité (~5000 caractères/jour) ; si la traduction
+échoue ou que le quota est dépassé, le texte français est conservé tel quel — relancez
+l'enregistrement plus tard pour réessayer.
+
 ### 3. Variables d'environnement
 
 Copier `.env.local.example` vers `.env.local` et renseigner :
