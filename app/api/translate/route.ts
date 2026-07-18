@@ -3,8 +3,42 @@ import { isAdminRequest } from '@/lib/adminAuth';
 
 type TranslateItem = { text: string; target: 'en' | 'es' };
 
-async function translateOne(text: string, target: 'en' | 'es'): Promise<string> {
-  if (!text.trim()) return '';
+// MyMemory's free tier rejects any single query over 500 characters.
+const MAX_CHUNK_LEN = 450;
+
+/**
+ * Splits text into chunks under MAX_CHUNK_LEN, preferring paragraph (\n) then
+ * sentence (". ") boundaries so translation quality stays as good as a single call.
+ */
+function chunkText(text: string): string[] {
+  const paragraphs = text.split('\n');
+  const chunks: string[] = [];
+
+  for (const paragraph of paragraphs) {
+    if (paragraph.length <= MAX_CHUNK_LEN) {
+      chunks.push(paragraph);
+      continue;
+    }
+
+    const sentences = paragraph.split(/(?<=[.!?])\s+/);
+    let current = '';
+    for (const sentence of sentences) {
+      const candidate = current ? `${current} ${sentence}` : sentence;
+      if (candidate.length > MAX_CHUNK_LEN && current) {
+        chunks.push(current);
+        current = sentence;
+      } else {
+        current = candidate;
+      }
+    }
+    if (current) chunks.push(current);
+  }
+
+  return chunks;
+}
+
+async function translateChunk(text: string, target: 'en' | 'es'): Promise<string> {
+  if (!text.trim()) return text;
 
   try {
     const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=fr|${target}`;
@@ -18,6 +52,24 @@ async function translateOne(text: string, target: 'en' | 'es'): Promise<string> 
   } catch {
     return text;
   }
+}
+
+async function translateOne(text: string, target: 'en' | 'es'): Promise<string> {
+  if (!text.trim()) return '';
+
+  if (text.length <= MAX_CHUNK_LEN) {
+    return translateChunk(text, target);
+  }
+
+  // Preserve paragraph breaks: translate each line's chunks, then rejoin lines with \n.
+  const lineChunks = text.split('\n').map((line) => (line.length <= MAX_CHUNK_LEN ? [line] : chunkText(line)));
+  const translatedLines = await Promise.all(
+    lineChunks.map(async (chunks) => {
+      const translated = await Promise.all(chunks.map((c) => translateChunk(c, target)));
+      return translated.join(' ');
+    })
+  );
+  return translatedLines.join('\n');
 }
 
 export async function POST(request: NextRequest) {
