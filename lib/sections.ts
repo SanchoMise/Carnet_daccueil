@@ -148,6 +148,13 @@ export const UI_LABELS = {
   close: { fr: 'Fermer', en: 'Close', es: 'Cerrar' },
   network: { fr: 'Réseau', en: 'Network', es: 'Red' },
   password: { fr: 'Mot de passe', en: 'Password', es: 'Contraseña' },
+  copy: { fr: 'Copier', en: 'Copy', es: 'Copiar' },
+  copied: { fr: 'Copié ✓', en: 'Copied ✓', es: 'Copiado ✓' },
+  wifi_mobile_hint: {
+    fr: 'Copiez le mot de passe puis allez dans Réglages → Wifi pour vous connecter.',
+    en: 'Copy the password, then go to Settings → Wifi to connect.',
+    es: 'Copia la contraseña y ve a Ajustes → Wifi para conectarte.',
+  },
   checkin: { fr: 'Arrivée', en: 'Check-in', es: 'Llegada' },
   checkout: { fr: 'Départ', en: 'Check-out', es: 'Salida' },
   tri_yellow: { fr: 'Jaune', en: 'Yellow', es: 'Amarillo' },

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { Icon } from './icons';
 import { SECTIONS, CHECKLIST_ITEMS, UI_LABELS, fieldLabel } from '@/lib/sections';
@@ -9,6 +9,14 @@ import { getValue } from '@/lib/contentValue';
 
 function t(dict: Record<Lang, string>, lang: Lang) {
   return dict[lang];
+}
+
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    setIsMobile(/iPhone|iPad|iPod|Android/i.test(navigator.userAgent));
+  }, []);
+  return isMobile;
 }
 
 export default function VisitorApp({
@@ -268,12 +276,36 @@ function ArriveeBody({ v, lang }: { v: VFn; lang: Lang }) {
   );
 }
 
+function CopyButton({ value, lang }: { value: string; lang: Lang }) {
+  const [copied, setCopied] = useState(false);
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+    } catch {
+      // clipboard API unavailable (e.g. insecure context) — silently ignore
+    }
+  };
+
+  return (
+    <button
+      onClick={copy}
+      className="text-xs text-accent font-medium px-2 py-0.5 rounded-full border border-accent/20 hover:bg-accent-light transition-colors shrink-0"
+    >
+      {copied ? t(UI_LABELS.copied, lang) : t(UI_LABELS.copy, lang)}
+    </button>
+  );
+}
+
 function WifiBody({ v, lang, onShowQr }: { v: VFn; lang: Lang; onShowQr: () => void }) {
   const ssid = v('wifi', 'wifi_ssid', false);
   const password = v('wifi', 'wifi_password', false);
   const devicesNote = v('wifi', 'devices_note', true);
   const lightsFansNote = v('wifi', 'lights_fans_note', true);
   const tvNote = v('wifi', 'tv_note', true);
+  const isMobile = useIsMobile();
 
   return (
     <>
@@ -281,14 +313,16 @@ function WifiBody({ v, lang, onShowQr }: { v: VFn; lang: Lang; onShowQr: () => v
         <div className="flex flex-col gap-1.5 mb-2">
           <div className="flex items-center gap-2.5 text-sm text-ink-2">
             <span className="text-ink-3 text-xs w-20 shrink-0">{t(UI_LABELS.network, lang)}</span>
-            <strong className="font-medium">{ssid || '—'}</strong>
+            <strong className="font-medium flex-1">{ssid || '—'}</strong>
+            {ssid && <CopyButton value={ssid} lang={lang} />}
           </div>
           <div className="flex items-center gap-2.5 text-sm text-ink-2">
             <span className="text-ink-3 text-xs w-20 shrink-0">{t(UI_LABELS.password, lang)}</span>
-            <strong className="font-medium">{password || '—'}</strong>
+            <strong className="font-medium flex-1">{password || '—'}</strong>
+            {password && <CopyButton value={password} lang={lang} />}
           </div>
         </div>
-        {ssid && (
+        {ssid && !isMobile && (
           <button
             onClick={onShowQr}
             className="inline-flex items-center gap-2.5 px-5 py-3 bg-accent text-white rounded-sm text-sm font-medium hover:opacity-90 transition-opacity"
@@ -296,6 +330,9 @@ function WifiBody({ v, lang, onShowQr }: { v: VFn; lang: Lang; onShowQr: () => v
             <Icon name="wifi" className="w-[18px] h-[18px]" />
             {t(UI_LABELS.connect_wifi, lang)}
           </button>
+        )}
+        {ssid && isMobile && (
+          <p className="text-xs text-ink-3 mt-1">{t(UI_LABELS.wifi_mobile_hint, lang)}</p>
         )}
       </Block>
       <Block>
