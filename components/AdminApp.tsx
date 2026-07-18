@@ -85,6 +85,7 @@ export default function AdminApp({ adminKey }: { adminKey: string }) {
         <main className="flex-1 p-6 max-w-3xl">
           {section.fields.length > 0 && (
             <ContentForm
+              key={section.id}
               section={section.id}
               fields={section.fields}
               contentMap={contentMap}
@@ -147,19 +148,6 @@ function ContentForm({
     return init;
   });
   const [saving, setSaving] = useState(false);
-
-  useEffect(() => {
-    const init: FieldValues = {};
-    for (const f of fields) {
-      init[f.key] = {
-        fr: contentMap[section]?.[f.key]?.fr ?? '',
-        en: contentMap[section]?.[f.key]?.en ?? '',
-        es: contentMap[section]?.[f.key]?.es ?? '',
-      };
-    }
-    setValues(init);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [section]);
 
   const setVal = (key: string, lang: Lang, val: string) => {
     setValues((prev) => ({ ...prev, [key]: { ...prev[key], [lang]: val } }));
