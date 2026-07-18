@@ -33,6 +33,17 @@ export default function VisitorApp({
   const [checked, setChecked] = useState<Set<number>>(new Set());
   const [wifiQrOpen, setWifiQrOpen] = useState(false);
 
+  const openAndScrollTo = (id: string) => {
+    setOpenSection(id);
+    // Wait for the accordion layout change (other sections collapsing) to be
+    // painted before measuring the scroll target, otherwise it aims at a stale position.
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+  };
+
   const v = (section: string, key: string, translatable: boolean) =>
     getValue(contentMap, section, key, lang, translatable);
 
@@ -92,14 +103,7 @@ export default function VisitorApp({
             href={`#${s.id}`}
             onClick={(e) => {
               e.preventDefault();
-              setOpenSection(s.id);
-              // Wait for the accordion layout change (other sections collapsing) to be
-              // painted before measuring the scroll target, otherwise it aims at a stale position.
-              requestAnimationFrame(() => {
-                requestAnimationFrame(() => {
-                  document.getElementById(s.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                });
-              });
+              openAndScrollTo(s.id);
             }}
             className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-border bg-surface text-[0.82rem] text-ink-2 hover:bg-accent-light hover:border-accent/25 hover:text-accent transition-all no-underline"
           >
@@ -116,7 +120,7 @@ export default function VisitorApp({
           return (
             <div key={s.id} id={s.id} className="scroll-mt-20 bg-surface rounded-2xl border border-border overflow-hidden">
               <div
-                onClick={() => setOpenSection(isOpen ? null : s.id)}
+                onClick={() => (isOpen ? setOpenSection(null) : openAndScrollTo(s.id))}
                 className="flex items-center gap-3.5 px-6 py-5 cursor-pointer select-none hover:bg-bg transition-colors"
               >
                 <div className="w-[38px] h-[38px] rounded-[10px] bg-accent-light flex items-center justify-center shrink-0">
