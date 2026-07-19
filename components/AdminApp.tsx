@@ -1,9 +1,10 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { SECTIONS } from '@/lib/sections';
 import { ContentMap, ContentRow, ImageRow, Lang, PlaceRow } from '@/lib/types';
 import { translateBatch } from '@/lib/translateClient';
+import { estimateWalkMinutesFromApartment } from '@/lib/geo';
 
 type FieldValues = Record<string, Record<Lang, string>>;
 
@@ -382,7 +383,7 @@ function PlacesEditor({
             </div>
             {editingId === p.id && (
               <div className="border-t border-border p-3 sm:p-4 bg-bg/50">
-                <PlaceFields form={editForm} setForm={setEditForm} />
+                <PlaceFields form={editForm} setForm={setEditForm} adminKey={adminKey} />
                 <div className="flex gap-2 mt-4">
                   <button
                     onClick={submitEdit}
@@ -406,7 +407,7 @@ function PlacesEditor({
       </div>
 
       <h3 className="text-sm font-medium mb-3">Ajouter une adresse</h3>
-      <PlaceFields form={newForm} setForm={setNewForm} />
+      <PlaceFields form={newForm} setForm={setNewForm} adminKey={adminKey} />
       <div className="flex gap-2 mt-4">
         <button
           onClick={submitNew}
@@ -420,12 +421,102 @@ function PlacesEditor({
   );
 }
 
-function PlaceFields({
+function AddressSearch({
   form,
   setForm,
+  adminKey,
 }: {
   form: Partial<PlaceRow>;
   setForm: (form: Partial<PlaceRow>) => void;
+  adminKey: string;
+}) {
+  const [query, setQuery] = useState(form.address ?? '');
+  const [results, setResults] = useState<{ label: string; lat: number; lon: number }[]>([]);
+  const [open, setOpen] = useState(false);
+  const [searching, setSearching] = useState(false);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    setQuery(form.address ?? '');
+  }, [form.address]);
+
+  const search = (q: string) => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    if (q.trim().length < 3) {
+      setResults([]);
+      return;
+    }
+    debounceRef.current = setTimeout(async () => {
+      setSearching(true);
+      const res = await fetch(`/api/geocode?q=${encodeURIComponent(q)}`, {
+        headers: { 'x-admin-key': adminKey },
+      });
+      const json = await res.json();
+      setResults(json.results ?? []);
+      setSearching(false);
+      setOpen(true);
+    }, 400);
+  };
+
+  const select = (r: { label: string; lat: number; lon: number }) => {
+    setForm({
+      ...form,
+      address: r.label,
+      maps_url: `https://www.google.com/maps/search/?api=1&query=${r.lat},${r.lon}`,
+      walk_minutes: estimateWalkMinutesFromApartment(r.lat, r.lon),
+    });
+    setQuery(r.label);
+    setOpen(false);
+    setResults([]);
+  };
+
+  return (
+    <div className="relative col-span-1 sm:col-span-2">
+      <input
+        placeholder="Rechercher une adresse (rue, ville...) 📍"
+        value={query}
+        onChange={(e) => {
+          setQuery(e.target.value);
+          setForm({ ...form, address: e.target.value });
+          search(e.target.value);
+        }}
+        onFocus={() => results.length > 0 && setOpen(true)}
+        onBlur={() => setTimeout(() => setOpen(false), 150)}
+        className="w-full border border-border rounded-sm px-3 py-2 text-sm"
+      />
+      {searching && <p className="text-xs text-ink-3 mt-1">Recherche…</p>}
+      {open && results.length > 0 && (
+        <ul className="absolute z-10 left-0 right-0 mt-1 bg-surface border border-border rounded-sm shadow-lg max-h-60 overflow-y-auto">
+          {results.map((r, i) => (
+            <li key={i}>
+              <button
+                type="button"
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => select(r)}
+                className="w-full text-left px-3 py-2 text-sm hover:bg-accent-light border-b border-border last:border-b-0"
+              >
+                {r.label}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      <p className="text-xs text-ink-3 mt-1">
+        Sélectionnez un résultat pour remplir automatiquement le lien Google Maps et la distance à pied. Adresses via
+        OpenStreetMap.
+      </p>
+    </div>
+  );
+}
+
+function PlaceFields({
+  form,
+  setForm,
+  adminKey,
+}: {
+  form: Partial<PlaceRow>;
+  setForm: (form: Partial<PlaceRow>) => void;
+  adminKey: string;
 }) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -448,12 +539,7 @@ function PlaceFields({
         className="border border-border rounded-sm px-3 py-2 text-sm col-span-2"
         rows={2}
       />
-      <input
-        placeholder="Adresse postale"
-        value={form.address ?? ''}
-        onChange={(e) => setForm({ ...form, address: e.target.value })}
-        className="border border-border rounded-sm px-3 py-2 text-sm"
-      />
+      <AddressSearch form={form} setForm={setForm} adminKey={adminKey} />
       <input
         placeholder="Lien Google Maps (optionnel)"
         value={form.maps_url ?? ''}
