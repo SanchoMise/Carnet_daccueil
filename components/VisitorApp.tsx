@@ -487,11 +487,6 @@ function BonsPlansBody({ places, lang }: { places: PlaceRow[]; lang: Lang }) {
           {items.map((p) => (
             <div key={p.id} className="py-3.5 border-b border-border last:border-b-0">
               <div className="font-medium text-[0.93rem] mb-1">
-                {p.category && (
-                  <span className="inline-block text-xs px-2 py-0.5 rounded-full bg-accent-light text-accent font-medium mr-1.5">
-                    {p.category}
-                  </span>
-                )}
                 {p.name}
                 {p.walk_minutes != null && (
                   <span className="text-xs text-ink-3 font-normal ml-1.5">
