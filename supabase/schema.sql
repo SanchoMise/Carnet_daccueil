@@ -47,8 +47,13 @@ alter table content enable row level security;
 alter table places enable row level security;
 alter table images enable row level security;
 
+drop policy if exists "Public read content" on content;
 create policy "Public read content" on content for select using (true);
+
+drop policy if exists "Public read places" on places;
 create policy "Public read places" on places for select using (true);
+
+drop policy if exists "Public read images" on images;
 create policy "Public read images" on images for select using (true);
 
 -- Storage: bucket public pour les images du carnet.
@@ -56,6 +61,7 @@ insert into storage.buckets (id, name, public)
 values ('welcome-book', 'welcome-book', true)
 on conflict (id) do nothing;
 
+drop policy if exists "Public read welcome-book bucket" on storage.objects;
 create policy "Public read welcome-book bucket"
 on storage.objects for select
 using (bucket_id = 'welcome-book');
