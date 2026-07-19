@@ -7,6 +7,15 @@ import { translateBatch } from '@/lib/translateClient';
 
 type FieldValues = Record<string, Record<Lang, string>>;
 
+async function readError(res: Response): Promise<string> {
+  try {
+    const json = await res.json();
+    return json?.error || `Erreur ${res.status}`;
+  } catch {
+    return `Erreur ${res.status}`;
+  }
+}
+
 function contentMapFromRows(rows: ContentRow[]): ContentMap {
   const map: ContentMap = {};
   for (const row of rows) {
@@ -23,7 +32,7 @@ export default function AdminApp({ adminKey }: { adminKey: string }) {
   const [images, setImages] = useState<ImageRow[]>([]);
   const [activeSection, setActiveSection] = useState(SECTIONS[0].id);
   const [loading, setLoading] = useState(true);
-  const [status, setStatus] = useState<string | null>(null);
+  const [status, setStatus] = useState<{ msg: string; error?: boolean } | null>(null);
 
   const headers = { 'Content-Type': 'application/json', 'x-admin-key': adminKey };
 
@@ -49,9 +58,9 @@ export default function AdminApp({ adminKey }: { adminKey: string }) {
     loadAll();
   }, [loadAll]);
 
-  const flash = (msg: string) => {
-    setStatus(msg);
-    setTimeout(() => setStatus(null), 2500);
+  const flash = (msg: string, error = false) => {
+    setStatus({ msg, error });
+    setTimeout(() => setStatus(null), error ? 6000 : 2500);
   };
 
   if (loading) {
@@ -64,7 +73,9 @@ export default function AdminApp({ adminKey }: { adminKey: string }) {
     <div className="min-h-screen bg-bg text-ink">
       <header className="sticky top-0 z-10 bg-surface border-b border-border px-4 sm:px-6 py-3 sm:py-4 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-0 sm:justify-between">
         <h1 className="font-serif text-lg sm:text-xl">Administration — Carnet d&apos;accueil</h1>
-        {status && <span className="text-sm text-accent font-medium">{status}</span>}
+        {status && (
+          <span className={`text-sm font-medium ${status.error ? 'text-red-600' : 'text-accent'}`}>{status.msg}</span>
+        )}
       </header>
 
       <div className="flex flex-col md:flex-row">
@@ -90,6 +101,7 @@ export default function AdminApp({ adminKey }: { adminKey: string }) {
               fields={section.fields}
               contentMap={contentMap}
               adminKey={adminKey}
+              flash={flash}
               onSaved={(items) => {
                 setContentMap((prev) => {
                   const next = { ...prev, [section.id]: { ...prev[section.id] } };
@@ -128,12 +140,14 @@ function ContentForm({
   fields,
   contentMap,
   adminKey,
+  flash,
   onSaved,
 }: {
   section: string;
   fields: typeof SECTIONS[number]['fields'];
   contentMap: ContentMap;
   adminKey: string;
+  flash: (msg: string, error?: boolean) => void;
   onSaved: (items: { section: string; key: string; lang: Lang; value: string }[]) => void;
 }) {
   const [values, setValues] = useState<FieldValues>(() => {
@@ -186,7 +200,11 @@ function ContentForm({
       body: JSON.stringify({ items }),
     });
     setSaving(false);
-    if (res.ok) onSaved(items);
+    if (res.ok) {
+      onSaved(items);
+    } else {
+      flash(`Échec de l'enregistrement : ${await readError(res)}`, true);
+    }
   };
 
   // Cluster consecutive fields sharing the same `group` under one subheading, so the
@@ -266,7 +284,7 @@ function PlacesEditor({
   places: PlaceRow[];
   adminKey: string;
   onChange: (places: PlaceRow[]) => void;
-  flash: (msg: string) => void;
+  flash: (msg: string, error?: boolean) => void;
 }) {
   const [newForm, setNewForm] = useState<Partial<PlaceRow>>(emptyPlace());
   const [editForm, setEditForm] = useState<Partial<PlaceRow>>(emptyPlace());
@@ -293,11 +311,13 @@ function PlacesEditor({
     setAddSubmitting(true);
     const payload = await buildPayload(newForm);
     const res = await fetch('/api/places', { method: 'POST', headers, body: JSON.stringify(payload) });
-    const json = await res.json();
     if (res.ok) {
+      const json = await res.json();
       onChange([...places, json.data]);
       flash('Adresse ajoutée ✓');
       setNewForm(emptyPlace());
+    } else {
+      flash(`Échec de l'ajout : ${await readError(res)}`, true);
     }
     setAddSubmitting(false);
   };
@@ -307,11 +327,13 @@ function PlacesEditor({
     setEditSubmitting(true);
     const payload = await buildPayload(editForm);
     const res = await fetch(`/api/places/${editingId}`, { method: 'PATCH', headers, body: JSON.stringify(payload) });
-    const json = await res.json();
     if (res.ok) {
+      const json = await res.json();
       onChange(places.map((p) => (p.id === editingId ? json.data : p)));
       flash('Adresse mise à jour ✓');
       setEditingId(null);
+    } else {
+      flash(`Échec de la mise à jour : ${await readError(res)}`, true);
     }
     setEditSubmitting(false);
   };
@@ -322,6 +344,8 @@ function PlacesEditor({
       onChange(places.filter((p) => p.id !== id));
       flash('Adresse supprimée ✓');
       if (editingId === id) setEditingId(null);
+    } else {
+      flash(`Échec de la suppression : ${await readError(res)}`, true);
     }
   };
 
@@ -459,7 +483,7 @@ function ImagesEditor({
   images: ImageRow[];
   adminKey: string;
   onChange: (images: ImageRow[]) => void;
-  flash: (msg: string) => void;
+  flash: (msg: string, error?: boolean) => void;
 }) {
   const [dragOver, setDragOver] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -474,11 +498,13 @@ function ImagesEditor({
       headers: { 'x-admin-key': adminKey },
       body: formData,
     });
-    const json = await res.json();
     setUploading(false);
     if (res.ok) {
+      const json = await res.json();
       onChange([...images, json.data]);
       flash('Image ajoutée ✓');
+    } else {
+      flash(`Échec de l'envoi : ${await readError(res)}`, true);
     }
   };
 
@@ -491,6 +517,8 @@ function ImagesEditor({
     if (res.ok) {
       onChange(images.filter((i) => i.id !== id));
       flash('Image supprimée ✓');
+    } else {
+      flash(`Échec de la suppression : ${await readError(res)}`, true);
     }
   };
 
