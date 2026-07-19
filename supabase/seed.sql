@@ -25,6 +25,21 @@ insert into content (section, key, lang, value) values
   ('cuisine', 'bins_location', 'fr', E'Un vide-ordures est disponible sur le palier, dans les escaliers (pour de petites quantités uniquement). Sinon, descendez au -1 (à pied ou en ascenseur) : vous y trouverez la poubelle jaune, la poubelle classique et la poubelle à verre.\nNous trions nos déchets : poubelles jaune, classique et verre se jettent directement dans l\'immeuble. Pour le compost, direction les bornes collectives en ville — par exemple près du métro Voltaire, place du Manège.')
 on conflict (section, key, lang) do update set value = excluded.value, updated_at = now();
 
+-- ── CHAMBRE PARENTALE ─────────────────────────────────────────────
+insert into content (section, key, lang, value) values
+  ('chambre-parentale', 'intro_note', 'fr', E'La déco et les aménagements sont encore en cours : des portes fermeront bientôt notre petit dressing, et une tête de lit viendra décaler le lit des fenêtres (les plans sont faits, il n\'y a plus qu\'à…).\nAu-dessus du dressing, le petit boîtier est un répéteur wifi.'),
+  ('chambre-parentale', 'volet_note', 'fr', 'Ne montez pas le volet roulant tout en haut, sinon il se bloque.'),
+  ('chambre-parentale', 'lights_note', 'fr', E'À l\'entrée de la chambre, l\'interrupteur allume la petite lampe posée sur la chaise (lumière douce).\nVous pouvez allumer la lumière sous le ventilateur en appuyant sur le bouton ampoule de la télécommande (lumière forte).'),
+  ('chambre-parentale', 'sonos_note', 'fr', 'Si vous êtes sensibles au bruit de la rue (il peut y en avoir un peu le week-end), vous pouvez appuyer sur play sur l''enceinte : un bruit blanc de vagues se lance. Il s''arrête normalement à 2h du matin.')
+on conflict (section, key, lang) do update set value = excluded.value, updated_at = now();
+
+-- ── CHAMBRE DES FILLES ────────────────────────────────────────────
+insert into content (section, key, lang, value) values
+  ('chambre-filles', 'intro_note', 'fr', 'La déco et les aménagements sont encore en cours : il manque quelques cadres, et un bureau viendra dans l''angle à la place de la table à langer.'),
+  ('chambre-filles', 'lights_note', 'fr', E'À l\'entrée de la chambre, l\'interrupteur allume une ampoule située à côté de la table à langer (lumière forte).\nVous pouvez allumer la lumière sous le ventilateur en appuyant sur le bouton ampoule de la télécommande (lumière forte).\nSur la barrière la plus haute du lit du haut (le bouton est caché derrière la barrière, côté lit — attention, il est aimanté et peut donc se détacher de son logement), un bouton allume la lumière située au-dessus du lit. Cette lumière s\'adapte automatiquement selon l\'heure de la journée : vous pouvez la régler en restant appuyé longtemps (l\'éclairage baisse, puis augmente si vous rappuyez) ou en effectuant deux pressions rapides (plusieurs éclairages différents sont alors proposés).'),
+  ('chambre-filles', 'sonos_note', 'fr', 'Si vous êtes sensibles au bruit de la rue (il peut y en avoir un peu le week-end), vous pouvez appuyer sur play sur l''enceinte : un bruit blanc de vagues se lance. Il s''arrête normalement à 2h du matin.')
+on conflict (section, key, lang) do update set value = excluded.value, updated_at = now();
+
 -- ── URGENCES & CONTACTS ───────────────────────────────────────────
 insert into content (section, key, lang, value) values
   ('urgences', 'electrical_note', 'fr', 'Si les plombs sautent, le tableau électrique se trouve dans le couloir menant aux chambres, sur la droite.')

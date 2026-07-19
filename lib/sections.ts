@@ -120,6 +120,29 @@ export const SECTIONS: SectionDef[] = [
     ],
   },
   {
+    id: 'chambre-parentale',
+    icon: 'bed',
+    title: { fr: 'Chambre parentale', en: 'Main bedroom', es: 'Habitación principal' },
+    subtitle: { fr: 'Volet, lumières, Sonos', en: 'Shutter, lights, Sonos', es: 'Persiana, luces, Sonos' },
+    fields: [
+      { key: 'intro_note', translatable: true, type: 'textarea', label: { fr: 'Introduction', en: 'Introduction', es: 'Introducción' } },
+      { key: 'volet_note', translatable: true, type: 'textarea', label: { fr: 'Volet', en: 'Shutter', es: 'Persiana' } },
+      { key: 'lights_note', translatable: true, type: 'textarea', label: { fr: 'Lumières', en: 'Lights', es: 'Luces' } },
+      { key: 'sonos_note', translatable: true, type: 'textarea', label: { fr: 'Enceinte Sonos', en: 'Sonos speaker', es: 'Altavoz Sonos' } },
+    ],
+  },
+  {
+    id: 'chambre-filles',
+    icon: 'bed',
+    title: { fr: 'Chambre des filles', en: "Girls' bedroom", es: 'Habitación de las niñas' },
+    subtitle: { fr: 'Lumières, Sonos', en: 'Lights, Sonos', es: 'Luces, Sonos' },
+    fields: [
+      { key: 'intro_note', translatable: true, type: 'textarea', label: { fr: 'Introduction', en: 'Introduction', es: 'Introducción' } },
+      { key: 'lights_note', translatable: true, type: 'textarea', label: { fr: 'Lumières', en: 'Lights', es: 'Luces' } },
+      { key: 'sonos_note', translatable: true, type: 'textarea', label: { fr: 'Enceinte Sonos', en: 'Sonos speaker', es: 'Altavoz Sonos' } },
+    ],
+  },
+  {
     id: 'regles',
     icon: 'rules',
     title: { fr: 'Règles du logement', en: 'House rules', es: 'Normas del alojamiento' },
@@ -188,9 +211,9 @@ export const UI_LABELS = {
   hero_title_1: { fr: 'Bienvenue', en: 'Welcome', es: 'Bienvenido' },
   hero_title_2: { fr: 'chez nous.', en: 'to our home.', es: 'a nuestra casa.' },
   hero_sub: {
-    fr: "Tout ce qu'il faut savoir pour vous sentir comme à la maison. N'hésitez pas à nous contacter si vous avez la moindre question.",
-    en: 'Everything you need to feel at home. Feel free to reach out if you have any questions.',
-    es: 'Todo lo que necesitas saber para sentirte como en casa. No dudes en contactarnos si tienes alguna pregunta.',
+    fr: "Tout ce qu'il faut savoir pour vous sentir comme à la maison. N'hésitez pas à nous contacter si vous avez la moindre question. Nous avons emménagé il y a seulement quelques mois, alors merci d'être indulgents sur la déco et les aménagements encore en cours !",
+    en: "Everything you need to feel at home. Feel free to reach out if you have any questions. We only moved in a few months ago, so please bear with us on the decor and finishing touches still in progress!",
+    es: 'Todo lo que necesitas saber para sentirte como en casa. No dudes en contactarnos si tienes alguna pregunta. Nos mudamos hace solo unos meses, así que gracias por tu indulgencia con la decoración y los detalles aún en curso.',
   },
   footer: {
     fr: 'Bon séjour chez nous 🏠 — Merci d\'être nos hôtes HomeExchange',

@@ -151,6 +151,9 @@ export default function VisitorApp({
                   {s.id === 'arrivee' && <ArriveeBody v={v} lang={lang} />}
                   {s.id === 'wifi' && <WifiBody v={v} lang={lang} onShowQr={() => setWifiQrOpen(true)} />}
                   {s.id === 'cuisine' && <CuisineBody v={v} lang={lang} />}
+                  {(s.id === 'chambre-parentale' || s.id === 'chambre-filles') && (
+                    <RoomBody sectionId={s.id} v={v} lang={lang} />
+                  )}
                   {s.id === 'regles' && <SimpleBody value={v('regles', 'rules_note', true)} />}
                   {s.id === 'transports' && <SimpleBody value={v('transports', 'transports_note', true)} />}
                   {s.id === 'bons-plans' && <BonsPlansBody places={places} lang={lang} />}
@@ -412,6 +415,38 @@ function CuisineBody({ v, lang }: { v: VFn; lang: Lang }) {
       {binsLocation && (
         <Block label={fieldLabel('cuisine', 'bins_location')?.[lang]}>
           <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line">{binsLocation}</p>
+        </Block>
+      )}
+    </>
+  );
+}
+
+function RoomBody({ sectionId, v, lang }: { sectionId: string; v: VFn; lang: Lang }) {
+  const introNote = v(sectionId, 'intro_note', true);
+  const voletNote = v(sectionId, 'volet_note', true);
+  const lightsNote = v(sectionId, 'lights_note', true);
+  const sonosNote = v(sectionId, 'sonos_note', true);
+
+  return (
+    <>
+      <Block>
+        <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line">
+          {introNote || UI_LABELS.to_complete[lang]}
+        </p>
+      </Block>
+      {voletNote && (
+        <Block label={fieldLabel(sectionId, 'volet_note')?.[lang]}>
+          <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line">{voletNote}</p>
+        </Block>
+      )}
+      {lightsNote && (
+        <Block label={fieldLabel(sectionId, 'lights_note')?.[lang]}>
+          <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line">{lightsNote}</p>
+        </Block>
+      )}
+      {sonosNote && (
+        <Block label={fieldLabel(sectionId, 'sonos_note')?.[lang]}>
+          <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line">{sonosNote}</p>
         </Block>
       )}
     </>

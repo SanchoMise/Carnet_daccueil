@@ -71,6 +71,15 @@ const paths: Record<string, JSX.Element> = {
       <path d="M15.5 7.5l3 3L22 7l-3-3" />
     </>
   ),
+  bed: (
+    <>
+      <path d="M2 18v-6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v6" />
+      <path d="M2 18v2" />
+      <path d="M22 18v2" />
+      <path d="M4 12V8a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v2" />
+      <path d="M13 12V9a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3" />
+    </>
+  ),
 };
 
 export function Icon({ name, className }: { name: string; className?: string }) {
