@@ -459,10 +459,14 @@ function AddressSearch({
   };
 
   const select = (r: { label: string; address: string; lat: number; lon: number }) => {
+    // Search by "name + address" text instead of raw coordinates: Google Maps then resolves
+    // to the actual business listing (reviews, hours...) when it recognizes it, rather than
+    // just dropping a bare pin.
+    const mapsQuery = form.name ? `${form.name} ${r.address}` : r.label;
     setForm({
       ...form,
       address: r.address,
-      maps_url: `https://www.google.com/maps/search/?api=1&query=${r.lat},${r.lon}`,
+      maps_url: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapsQuery)}`,
       walk_minutes: estimateWalkMinutesFromApartment(r.lat, r.lon),
     });
     setQuery(r.address);
