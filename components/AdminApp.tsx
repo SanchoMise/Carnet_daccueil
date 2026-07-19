@@ -62,18 +62,18 @@ export default function AdminApp({ adminKey }: { adminKey: string }) {
 
   return (
     <div className="min-h-screen bg-bg text-ink">
-      <header className="sticky top-0 z-10 bg-surface border-b border-border px-6 py-4 flex items-center justify-between">
-        <h1 className="font-serif text-xl">Administration — Carnet d&apos;accueil</h1>
+      <header className="sticky top-0 z-10 bg-surface border-b border-border px-4 sm:px-6 py-3 sm:py-4 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-0 sm:justify-between">
+        <h1 className="font-serif text-lg sm:text-xl">Administration — Carnet d&apos;accueil</h1>
         {status && <span className="text-sm text-accent font-medium">{status}</span>}
       </header>
 
-      <div className="flex">
-        <nav className="w-56 shrink-0 border-r border-border min-h-[calc(100vh-65px)] p-4 flex flex-col gap-1">
+      <div className="flex flex-col md:flex-row">
+        <nav className="flex md:flex-col gap-1 overflow-x-auto md:overflow-visible w-full md:w-56 md:shrink-0 border-b md:border-b-0 md:border-r border-border p-3 md:p-4 md:min-h-[calc(100vh-65px)]">
           {SECTIONS.map((s) => (
             <button
               key={s.id}
               onClick={() => setActiveSection(s.id)}
-              className={`text-left px-3 py-2 rounded-sm text-sm ${
+              className={`shrink-0 whitespace-nowrap text-left px-3 py-2 rounded-sm text-sm ${
                 activeSection === s.id ? 'bg-accent-light text-accent font-medium' : 'text-ink-2 hover:bg-bg'
               }`}
             >
@@ -82,7 +82,7 @@ export default function AdminApp({ adminKey }: { adminKey: string }) {
           ))}
         </nav>
 
-        <main className="flex-1 p-6 max-w-3xl">
+        <main className="flex-1 p-4 sm:p-6 max-w-3xl">
           {section.fields.length > 0 && (
             <ContentForm
               key={section.id}
@@ -190,7 +190,7 @@ function ContentForm({
   };
 
   return (
-    <div className="bg-surface rounded-2xl border border-border p-6 mb-6">
+    <div className="bg-surface rounded-2xl border border-border p-4 sm:p-6 mb-6">
       <h2 className="font-serif text-lg mb-4">Textes</h2>
       <p className="text-xs text-ink-3 mb-4">
         Remplissez uniquement le français : l&apos;anglais et l&apos;espagnol sont générés automatiquement à l&apos;enregistrement.
@@ -308,20 +308,20 @@ function PlacesEditor({
   };
 
   return (
-    <div className="bg-surface rounded-2xl border border-border p-6 mb-6">
+    <div className="bg-surface rounded-2xl border border-border p-4 sm:p-6 mb-6">
       <h2 className="font-serif text-lg mb-4">Bons plans</h2>
 
       <div className="flex flex-col gap-2 mb-6">
         {places.map((p) => (
           <div key={p.id} className="border border-border rounded-sm">
-            <div className="flex items-center justify-between px-4 py-2.5">
+            <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-2.5">
               <div>
                 <span className="text-xs px-2 py-0.5 rounded-full bg-accent-light text-accent font-medium mr-2">
                   {p.category || '—'}
                 </span>
                 <span className="text-sm font-medium">{p.name}</span>
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-2 shrink-0">
                 <button
                   onClick={() => (editingId === p.id ? setEditingId(null) : edit(p))}
                   className="text-xs text-accent font-medium"
@@ -334,7 +334,7 @@ function PlacesEditor({
               </div>
             </div>
             {editingId === p.id && (
-              <div className="border-t border-border p-4 bg-bg/50">
+              <div className="border-t border-border p-3 sm:p-4 bg-bg/50">
                 <PlaceFields form={editForm} setForm={setEditForm} />
                 <div className="flex gap-2 mt-4">
                   <button
@@ -381,7 +381,7 @@ function PlaceFields({
   setForm: (form: Partial<PlaceRow>) => void;
 }) {
   return (
-    <div className="grid grid-cols-2 gap-3">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
       <input
         placeholder="Nom"
         value={form.name ?? ''}
@@ -472,7 +472,7 @@ function ImagesEditor({
   };
 
   return (
-    <div className="bg-surface rounded-2xl border border-border p-6">
+    <div className="bg-surface rounded-2xl border border-border p-4 sm:p-6">
       <h2 className="font-serif text-lg mb-4">Images</h2>
 
       <div className="flex flex-wrap gap-3 mb-4">
