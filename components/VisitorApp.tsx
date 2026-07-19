@@ -408,8 +408,12 @@ function CuisineBody({ v, lang }: { v: VFn; lang: Lang }) {
             <div className="text-[0.7rem] leading-tight opacity-70">{t(UI_LABELS.tri_gray_sub, lang)}</div>
           </div>
         </div>
-        {binsLocation && <p className="text-[0.8rem] text-ink-3 mt-3">{binsLocation}</p>}
       </Block>
+      {binsLocation && (
+        <Block label={fieldLabel('cuisine', 'bins_location')?.[lang]}>
+          <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line">{binsLocation}</p>
+        </Block>
+      )}
     </>
   );
 }
