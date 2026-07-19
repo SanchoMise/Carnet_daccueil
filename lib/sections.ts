@@ -6,6 +6,10 @@ export type FieldDef = {
   translatable: boolean;
   label: Record<Lang, string>;
   type?: 'text' | 'textarea';
+  /** Admin-only (French) subheading clustering related fields — mirrors how they're grouped on the visitor page. */
+  group?: string;
+  /** Admin-only (French) one-line hint clarifying what this field controls on the visitor page. */
+  hint?: string;
 };
 
 export type SectionDef = {
@@ -23,15 +27,74 @@ export const SECTIONS: SectionDef[] = [
     title: { fr: 'Arrivée & départ', en: 'Check-in & check-out', es: 'Llegada & salida' },
     subtitle: { fr: 'Codes, clés, horaires', en: 'Codes, keys, schedule', es: 'Códigos, llaves, horarios' },
     fields: [
-      { key: 'key_warning', translatable: true, type: 'textarea', label: { fr: 'Avertissement clés', en: 'Key warning', es: 'Aviso sobre las llaves' } },
-      { key: 'doors_note', translatable: true, type: 'textarea', label: { fr: 'Description des 3 portes', en: 'The 3 doors', es: 'Las 3 puertas' } },
-      { key: 'digicode', translatable: false, type: 'text', label: { fr: 'Digicode 2ème porte (hall)', en: 'Keypad code (hall door)', es: 'Código de la puerta del hall' } },
-      { key: 'entrance_note', translatable: true, type: 'textarea', label: { fr: "Note porte de l'immeuble", en: 'Building entrance note', es: 'Nota de la entrada' } },
-      { key: 'apartment_note', translatable: true, type: 'textarea', label: { fr: "Étage / porte de l'appartement", en: 'Floor / apartment door', es: 'Piso / puerta del apartamento' } },
-      { key: 'checkin_time', translatable: false, type: 'text', label: { fr: "Heure d'arrivée", en: 'Check-in time', es: 'Hora de llegada' } },
-      { key: 'checkin_note', translatable: true, type: 'textarea', label: { fr: "Note arrivée", en: 'Check-in note', es: 'Nota de llegada' } },
-      { key: 'checkout_time', translatable: false, type: 'text', label: { fr: 'Heure de départ', en: 'Check-out time', es: 'Hora de salida' } },
-      { key: 'checkout_note', translatable: true, type: 'textarea', label: { fr: 'Note départ', en: 'Check-out note', es: 'Nota de salida' } },
+      {
+        key: 'key_warning',
+        translatable: true,
+        type: 'textarea',
+        group: 'Clés',
+        label: { fr: 'Avertissement clés', en: 'Key warning', es: 'Aviso sobre las llaves' },
+        hint: "Rappel affiché en premier, en évidence (icône clé) : ce qu'il faut savoir avant de partir avec ou sans les clés.",
+      },
+      {
+        key: 'doors_note',
+        translatable: true,
+        type: 'textarea',
+        group: 'Clés',
+        label: { fr: 'Description des 3 portes', en: 'The 3 doors', es: 'Las 3 puertas' },
+        hint: "Texte simple juste en dessous : décrit les 3 portes à franchir (rue, hall, appartement).",
+      },
+      {
+        key: 'entrance_note',
+        translatable: true,
+        type: 'textarea',
+        group: "Porte de l'immeuble (badge / interphone)",
+        label: { fr: "Note porte de l'immeuble", en: 'Building entrance note', es: 'Nota de la entrada' },
+        hint: 'Affiché en évidence (icône bâtiment), juste au-dessus du digicode ci-dessous.',
+      },
+      {
+        key: 'digicode',
+        translatable: false,
+        type: 'text',
+        group: "Porte de l'immeuble (badge / interphone)",
+        label: { fr: 'Digicode 2ème porte (hall)', en: 'Keypad code (hall door)', es: 'Código de la puerta del hall' },
+        hint: 'Affiché en gros chiffres, juste sous la note ci-dessus.',
+      },
+      {
+        key: 'apartment_note',
+        translatable: true,
+        type: 'textarea',
+        group: 'Appartement',
+        label: { fr: "Étage / porte de l'appartement", en: 'Floor / apartment door', es: 'Piso / puerta del apartamento' },
+        hint: 'Affiché en évidence (icône maison) : comment reconnaître votre porte une fois dans l\'immeuble.',
+      },
+      {
+        key: 'checkin_time',
+        translatable: false,
+        type: 'text',
+        group: 'Horaires',
+        label: { fr: "Heure d'arrivée", en: 'Check-in time', es: 'Hora de llegada' },
+      },
+      {
+        key: 'checkin_note',
+        translatable: true,
+        type: 'textarea',
+        group: 'Horaires',
+        label: { fr: 'Note arrivée', en: 'Check-in note', es: 'Nota de llegada' },
+      },
+      {
+        key: 'checkout_time',
+        translatable: false,
+        type: 'text',
+        group: 'Horaires',
+        label: { fr: 'Heure de départ', en: 'Check-out time', es: 'Hora de salida' },
+      },
+      {
+        key: 'checkout_note',
+        translatable: true,
+        type: 'textarea',
+        group: 'Horaires',
+        label: { fr: 'Note départ', en: 'Check-out note', es: 'Nota de salida' },
+      },
     ],
   },
   {
@@ -40,11 +103,11 @@ export const SECTIONS: SectionDef[] = [
     title: { fr: 'Wifi & équipements', en: 'Wifi & appliances', es: 'Wifi & electrodomésticos' },
     subtitle: { fr: 'Connexion, TV, appareils', en: 'Connection, TV, devices', es: 'Conexión, TV, aparatos' },
     fields: [
-      { key: 'wifi_ssid', translatable: false, type: 'text', label: { fr: 'Nom du réseau (SSID)', en: 'Network name (SSID)', es: 'Nombre de la red (SSID)' } },
-      { key: 'wifi_password', translatable: false, type: 'text', label: { fr: 'Mot de passe wifi', en: 'Wifi password', es: 'Contraseña wifi' } },
-      { key: 'devices_note', translatable: true, type: 'textarea', label: { fr: 'Appareils (TV, Sonos, lave-linge...)', en: 'Appliances (TV, Sonos, washer...)', es: 'Aparatos (TV, Sonos, lavadora...)' } },
-      { key: 'lights_fans_note', translatable: true, type: 'textarea', label: { fr: 'Lumières & ventilateurs de plafond', en: 'Lights & ceiling fans', es: 'Luces y ventiladores de techo' } },
-      { key: 'tv_note', translatable: true, type: 'textarea', label: { fr: 'Vidéoprojecteur / TV', en: 'Projector / TV', es: 'Proyector / TV' } },
+      { key: 'wifi_ssid', translatable: false, type: 'text', group: 'Connexion wifi', label: { fr: 'Nom du réseau (SSID)', en: 'Network name (SSID)', es: 'Nombre de la red (SSID)' } },
+      { key: 'wifi_password', translatable: false, type: 'text', group: 'Connexion wifi', label: { fr: 'Mot de passe wifi', en: 'Wifi password', es: 'Contraseña wifi' } },
+      { key: 'devices_note', translatable: true, type: 'textarea', group: 'Appareils', label: { fr: 'Appareils (TV, Sonos, lave-linge...)', en: 'Appliances (TV, Sonos, washer...)', es: 'Aparatos (TV, Sonos, lavadora...)' } },
+      { key: 'lights_fans_note', translatable: true, type: 'textarea', group: 'Appareils', label: { fr: 'Lumières & ventilateurs de plafond', en: 'Lights & ceiling fans', es: 'Luces y ventiladores de techo' } },
+      { key: 'tv_note', translatable: true, type: 'textarea', group: 'Appareils', label: { fr: 'Vidéoprojecteur / TV', en: 'Projector / TV', es: 'Proyector / TV' } },
     ],
   },
   {
@@ -92,11 +155,11 @@ export const SECTIONS: SectionDef[] = [
     title: { fr: 'Urgences & contacts', en: 'Emergency contacts', es: 'Urgencias & contactos' },
     subtitle: { fr: 'Numéros utiles', en: 'Useful numbers', es: 'Números útiles' },
     fields: [
-      { key: 'host_phone', translatable: false, type: 'text', label: { fr: "Téléphone de l'hôte", en: 'Host phone', es: 'Teléfono del anfitrión' } },
-      { key: 'plumber_phone', translatable: false, type: 'text', label: { fr: 'Plombier / dépannage', en: 'Plumber / repairs', es: 'Fontanero / reparaciones' } },
-      { key: 'pharmacy_note', translatable: true, type: 'textarea', label: { fr: 'Pharmacie / hôpital le plus proche', en: 'Nearest pharmacy / hospital', es: 'Farmacia / hospital más cercano' } },
-      { key: 'pharmacy_link', translatable: false, type: 'text', label: { fr: 'Lien Google Maps pharmacie', en: 'Pharmacy Google Maps link', es: 'Enlace de Google Maps' } },
-      { key: 'electrical_note', translatable: true, type: 'textarea', label: { fr: 'Tableau électrique / plombs', en: 'Electrical panel / fuses', es: 'Cuadro eléctrico / fusibles' } },
+      { key: 'host_phone', translatable: false, type: 'text', group: 'Contacts', label: { fr: "Téléphone de l'hôte", en: 'Host phone', es: 'Teléfono del anfitrión' } },
+      { key: 'plumber_phone', translatable: false, type: 'text', group: 'Contacts', label: { fr: 'Plombier / dépannage', en: 'Plumber / repairs', es: 'Fontanero / reparaciones' } },
+      { key: 'pharmacy_note', translatable: true, type: 'textarea', group: 'Pharmacie / hôpital', label: { fr: 'Pharmacie / hôpital le plus proche', en: 'Nearest pharmacy / hospital', es: 'Farmacia / hospital más cercano' } },
+      { key: 'pharmacy_link', translatable: false, type: 'text', group: 'Pharmacie / hôpital', label: { fr: 'Lien Google Maps pharmacie', en: 'Pharmacy Google Maps link', es: 'Enlace de Google Maps' } },
+      { key: 'electrical_note', translatable: true, type: 'textarea', group: 'Tableau électrique', label: { fr: 'Tableau électrique / plombs', en: 'Electrical panel / fuses', es: 'Cuadro eléctrico / fusibles' } },
     ],
   },
   {

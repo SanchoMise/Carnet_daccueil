@@ -189,33 +189,56 @@ function ContentForm({
     if (res.ok) onSaved(items);
   };
 
+  // Cluster consecutive fields sharing the same `group` under one subheading, so the
+  // admin form mirrors how these fields are visually grouped on the visitor page.
+  const groups: { label: string | null; fields: typeof fields }[] = [];
+  for (const f of fields) {
+    const label = f.group ?? null;
+    const last = groups[groups.length - 1];
+    if (last && last.label === label) {
+      last.fields.push(f);
+    } else {
+      groups.push({ label, fields: [f] });
+    }
+  }
+
   return (
     <div className="bg-surface rounded-2xl border border-border p-4 sm:p-6 mb-6">
       <h2 className="font-serif text-lg mb-4">Textes</h2>
       <p className="text-xs text-ink-3 mb-4">
         Remplissez uniquement le français : l&apos;anglais et l&apos;espagnol sont générés automatiquement à l&apos;enregistrement.
       </p>
-      <div className="flex flex-col gap-5">
-        {fields.map((f) => (
-          <div key={f.key}>
-            <label className="block text-xs font-medium uppercase tracking-wider text-ink-3 mb-1.5">
-              {f.label.fr}
-              {f.translatable && <span className="normal-case font-normal text-ink-3/70"> · 🌐 traduit auto</span>}
-            </label>
-            {f.type === 'textarea' ? (
-              <textarea
-                value={values[f.key].fr}
-                onChange={(e) => setVal(f.key, 'fr', e.target.value)}
-                rows={2}
-                className="w-full border border-border rounded-sm px-3 py-2 text-sm"
-              />
-            ) : (
-              <input
-                value={values[f.key].fr}
-                onChange={(e) => setVal(f.key, 'fr', e.target.value)}
-                className="w-full border border-border rounded-sm px-3 py-2 text-sm"
-              />
+      <div className="flex flex-col gap-6">
+        {groups.map((group, gi) => (
+          <div key={gi} className={gi > 0 ? 'pt-5 border-t border-border' : ''}>
+            {group.label && (
+              <h3 className="text-sm font-serif text-accent mb-3">{group.label}</h3>
             )}
+            <div className="flex flex-col gap-5">
+              {group.fields.map((f) => (
+                <div key={f.key}>
+                  <label className="block text-xs font-medium uppercase tracking-wider text-ink-3 mb-1.5">
+                    {f.label.fr}
+                    {f.translatable && <span className="normal-case font-normal text-ink-3/70"> · 🌐 traduit auto</span>}
+                  </label>
+                  {f.hint && <p className="text-xs text-ink-3/80 mb-1.5">{f.hint}</p>}
+                  {f.type === 'textarea' ? (
+                    <textarea
+                      value={values[f.key].fr}
+                      onChange={(e) => setVal(f.key, 'fr', e.target.value)}
+                      rows={2}
+                      className="w-full border border-border rounded-sm px-3 py-2 text-sm"
+                    />
+                  ) : (
+                    <input
+                      value={values[f.key].fr}
+                      onChange={(e) => setVal(f.key, 'fr', e.target.value)}
+                      className="w-full border border-border rounded-sm px-3 py-2 text-sm"
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         ))}
       </div>
