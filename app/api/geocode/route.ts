@@ -5,7 +5,20 @@ type NominatimResult = {
   display_name: string;
   lat: string;
   lon: string;
+  address?: {
+    house_number?: string;
+    road?: string;
+    pedestrian?: string;
+    footway?: string;
+  };
 };
+
+/** Builds a short "182 Boulevard Voltaire"-style address from Nominatim's structured fields. */
+function shortAddress(r: NominatimResult): string {
+  const road = r.address?.road || r.address?.pedestrian || r.address?.footway;
+  if (!road) return r.display_name;
+  return r.address?.house_number ? `${r.address.house_number} ${road}` : road;
+}
 
 export async function GET(request: NextRequest) {
   if (!isAdminRequest(request)) {
@@ -18,7 +31,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const url = `https://nominatim.openstreetmap.org/search?format=json&limit=5&addressdetails=0&q=${encodeURIComponent(q)}`;
+    const url = `https://nominatim.openstreetmap.org/search?format=json&limit=5&addressdetails=1&q=${encodeURIComponent(q)}`;
     const res = await fetch(url, {
       headers: {
         // Required by Nominatim's usage policy: https://operations.osmfoundation.org/policies/nominatim/
@@ -30,6 +43,7 @@ export async function GET(request: NextRequest) {
     const data = (await res.json()) as NominatimResult[];
     const results = data.map((r) => ({
       label: r.display_name,
+      address: shortAddress(r),
       lat: parseFloat(r.lat),
       lon: parseFloat(r.lon),
     }));

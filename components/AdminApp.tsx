@@ -431,7 +431,7 @@ function AddressSearch({
   adminKey: string;
 }) {
   const [query, setQuery] = useState(form.address ?? '');
-  const [results, setResults] = useState<{ label: string; lat: number; lon: number }[]>([]);
+  const [results, setResults] = useState<{ label: string; address: string; lat: number; lon: number }[]>([]);
   const [open, setOpen] = useState(false);
   const [searching, setSearching] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -458,14 +458,14 @@ function AddressSearch({
     }, 400);
   };
 
-  const select = (r: { label: string; lat: number; lon: number }) => {
+  const select = (r: { label: string; address: string; lat: number; lon: number }) => {
     setForm({
       ...form,
-      address: r.label,
+      address: r.address,
       maps_url: `https://www.google.com/maps/search/?api=1&query=${r.lat},${r.lon}`,
       walk_minutes: estimateWalkMinutesFromApartment(r.lat, r.lon),
     });
-    setQuery(r.label);
+    setQuery(r.address);
     setOpen(false);
     setResults([]);
   };
