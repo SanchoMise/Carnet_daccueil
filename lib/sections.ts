@@ -93,6 +93,16 @@ export const SECTIONS: SectionDef[] = [
     ],
   },
   {
+    id: 'entree',
+    icon: 'entrance',
+    title: { fr: 'Entrée', en: 'Entryway', es: 'Entrada' },
+    subtitle: { fr: 'Porte, plafonnier', en: 'Door, ceiling light', es: 'Puerta, plafón' },
+    fields: [
+      { key: 'door_note', translatable: true, type: 'textarea', label: { fr: "Porte d'entrée", en: 'Front door', es: 'Puerta de entrada' } },
+      { key: 'ceiling_light_note', translatable: true, type: 'textarea', label: { fr: 'Plafonnier', en: 'Ceiling light', es: 'Plafón' } },
+    ],
+  },
+  {
     id: 'wifi',
     icon: 'wifi',
     title: { fr: 'Wifi & équipements', en: 'Wifi & appliances', es: 'Wifi & electrodomésticos' },

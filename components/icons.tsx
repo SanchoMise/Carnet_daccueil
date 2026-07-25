@@ -80,6 +80,13 @@ const paths: Record<string, JSX.Element> = {
       <path d="M13 12V9a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3" />
     </>
   ),
+  entrance: (
+    <>
+      <path d="M5 21V4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v17" />
+      <path d="M3 21h18" />
+      <circle cx="15" cy="12" r="1" />
+    </>
+  ),
 };
 
 export function Icon({ name, className }: { name: string; className?: string }) {

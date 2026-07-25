@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { Icon } from './icons';
-import { SECTIONS, CHECKLIST_ITEMS, UI_LABELS, fieldLabel } from '@/lib/sections';
+import { SECTIONS, CHECKLIST_ITEMS, UI_LABELS, fieldLabel, type SectionDef } from '@/lib/sections';
 import { ContentMap, ImageRow, Lang, LANGS, PlaceRow } from '@/lib/types';
 import { getValue } from '@/lib/contentValue';
 
@@ -150,6 +150,7 @@ export default function VisitorApp({
 
                   {s.id === 'arrivee' && <ArriveeBody v={v} lang={lang} />}
                   {s.id === 'wifi' && <WifiBody v={v} lang={lang} onShowQr={() => setWifiQrOpen(true)} />}
+                  {s.id === 'entree' && <GenericBody section={s} v={v} lang={lang} />}
                   {s.id === 'cuisine' && <CuisineBody v={v} lang={lang} />}
                   {(s.id === 'chambre-parentale' || s.id === 'chambre-filles') && (
                     <RoomBody sectionId={s.id} v={v} lang={lang} />
@@ -417,6 +418,31 @@ function CuisineBody({ v, lang }: { v: VFn; lang: Lang }) {
           <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line">{binsLocation}</p>
         </Block>
       )}
+    </>
+  );
+}
+
+/** Renders every filled field of a section as its own labeled block, in declaration order. */
+function GenericBody({ section, v, lang }: { section: SectionDef; v: VFn; lang: Lang }) {
+  const filled = section.fields.filter((f) => v(section.id, f.key, f.translatable));
+
+  if (filled.length === 0) {
+    return (
+      <Block>
+        <p className="text-[0.93rem] text-ink-2">{UI_LABELS.to_complete[lang]}</p>
+      </Block>
+    );
+  }
+
+  return (
+    <>
+      {filled.map((f) => (
+        <Block key={f.key} label={f.label[lang]}>
+          <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line">
+            {v(section.id, f.key, f.translatable)}
+          </p>
+        </Block>
+      ))}
     </>
   );
 }
