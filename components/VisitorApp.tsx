@@ -452,6 +452,7 @@ function RoomBody({ sectionId, v, lang }: { sectionId: string; v: VFn; lang: Lan
   const voletNote = v(sectionId, 'volet_note', true);
   const lightsNote = v(sectionId, 'lights_note', true);
   const sonosNote = v(sectionId, 'sonos_note', true);
+  const fanNote = v(sectionId, 'fan_note', true);
 
   return (
     <>
@@ -473,6 +474,11 @@ function RoomBody({ sectionId, v, lang }: { sectionId: string; v: VFn; lang: Lan
       {sonosNote && (
         <Block label={fieldLabel(sectionId, 'sonos_note')?.[lang]}>
           <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line">{sonosNote}</p>
+        </Block>
+      )}
+      {fanNote && (
+        <Block label={fieldLabel(sectionId, 'fan_note')?.[lang]}>
+          <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line">{fanNote}</p>
         </Block>
       )}
     </>

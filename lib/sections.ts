@@ -133,12 +133,12 @@ export const SECTIONS: SectionDef[] = [
     id: 'chambre-parentale',
     icon: 'bed',
     title: { fr: 'Chambre parentale', en: 'Main bedroom', es: 'Habitación principal' },
-    subtitle: { fr: 'Volet, lumières, Sonos', en: 'Shutter, lights, Sonos', es: 'Persiana, luces, Sonos' },
+    subtitle: { fr: 'Volet, lumières, ventilateur', en: 'Shutter, lights, fan', es: 'Persiana, luces, ventilador' },
     fields: [
       { key: 'intro_note', translatable: true, type: 'textarea', label: { fr: 'Introduction', en: 'Introduction', es: 'Introducción' } },
       { key: 'volet_note', translatable: true, type: 'textarea', label: { fr: 'Volet', en: 'Shutter', es: 'Persiana' } },
       { key: 'lights_note', translatable: true, type: 'textarea', label: { fr: 'Lumières', en: 'Lights', es: 'Luces' } },
-      { key: 'sonos_note', translatable: true, type: 'textarea', label: { fr: 'Enceinte Sonos', en: 'Sonos speaker', es: 'Altavoz Sonos' } },
+      { key: 'fan_note', translatable: true, type: 'textarea', label: { fr: 'Ventilateur', en: 'Fan', es: 'Ventilador' } },
     ],
   },
   {
