@@ -580,15 +580,16 @@ function ImagesEditor({
 }) {
   const [dragOver, setDragOver] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [targetField, setTargetField] = useState('');
+  const [targetField, setTargetField] = useState(fields[0]?.key ?? '');
   const [caption, setCaption] = useState('');
 
   const upload = async (file: File) => {
+    if (!targetField) return;
     setUploading(true);
     const formData = new FormData();
     formData.append('file', file);
     formData.append('section', section);
-    if (targetField) formData.append('field_key', targetField);
+    formData.append('field_key', targetField);
     if (caption.trim()) formData.append('caption', caption.trim());
     const res = await fetch('/api/upload', {
       method: 'POST',
@@ -620,10 +621,13 @@ function ImagesEditor({
     }
   };
 
-  const groups: { key: string; label: string; items: ImageRow[] }[] = [
-    { key: '', label: 'Général (haut de la rubrique)', items: images.filter((i) => !i.field_key) },
-    ...fields.map((f) => ({ key: f.key, label: f.label.fr, items: images.filter((i) => i.field_key === f.key) })),
-  ].filter((g) => g.items.length > 0);
+  const groups: { key: string; label: string; items: ImageRow[] }[] = fields
+    .map((f) => ({ key: f.key, label: f.label.fr, items: images.filter((i) => i.field_key === f.key) }))
+    .filter((g) => g.items.length > 0);
+
+  if (fields.length === 0) {
+    return null;
+  }
 
   return (
     <div className="bg-surface rounded-2xl border border-border p-4 sm:p-6">
@@ -657,20 +661,17 @@ function ImagesEditor({
       )}
 
       <div className="flex flex-col sm:flex-row gap-2 mb-3">
-        {fields.length > 0 && (
-          <select
-            value={targetField}
-            onChange={(e) => setTargetField(e.target.value)}
-            className="border border-border rounded-sm px-3 py-2 text-sm bg-surface"
-          >
-            <option value="">Général (haut de la rubrique)</option>
-            {fields.map((f) => (
-              <option key={f.key} value={f.key}>
-                {f.label.fr}
-              </option>
-            ))}
-          </select>
-        )}
+        <select
+          value={targetField}
+          onChange={(e) => setTargetField(e.target.value)}
+          className="border border-border rounded-sm px-3 py-2 text-sm bg-surface"
+        >
+          {fields.map((f) => (
+            <option key={f.key} value={f.key}>
+              {f.label.fr}
+            </option>
+          ))}
+        </select>
         <input
           placeholder="Légende (optionnel)"
           value={caption}
