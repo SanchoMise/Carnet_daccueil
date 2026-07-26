@@ -621,6 +621,21 @@ function ImagesEditor({
     }
   };
 
+  const saveCaption = async (id: string, caption: string) => {
+    const res = await fetch('/api/upload', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', 'x-admin-key': adminKey },
+      body: JSON.stringify({ id, caption }),
+    });
+    if (res.ok) {
+      const json = await res.json();
+      onChange(images.map((i) => (i.id === id ? json.data : i)));
+      flash('Légende enregistrée ✓');
+    } else {
+      flash(`Échec de l'enregistrement : ${await readError(res)}`, true);
+    }
+  };
+
   const groups: { key: string; label: string; items: ImageRow[] }[] = fields
     .map((f) => ({ key: f.key, label: f.label.fr, items: images.filter((i) => i.field_key === f.key) }))
     .filter((g) => g.items.length > 0);
@@ -651,7 +666,7 @@ function ImagesEditor({
                         ×
                       </button>
                     </div>
-                    {img.caption && <p className="text-xs text-ink-3 mt-1">{img.caption}</p>}
+                    <CaptionInput image={img} onSave={saveCaption} />
                   </div>
                 ))}
               </div>
@@ -708,5 +723,29 @@ function ImagesEditor({
         />
       </label>
     </div>
+  );
+}
+
+function CaptionInput({ image, onSave }: { image: ImageRow; onSave: (id: string, caption: string) => Promise<void> }) {
+  const [value, setValue] = useState(image.caption ?? '');
+  const [saving, setSaving] = useState(false);
+
+  const commit = async () => {
+    if (value === (image.caption ?? '')) return;
+    setSaving(true);
+    await onSave(image.id, value);
+    setSaving(false);
+  };
+
+  return (
+    <input
+      placeholder="Légende…"
+      value={value}
+      disabled={saving}
+      onChange={(e) => setValue(e.target.value)}
+      onBlur={commit}
+      onKeyDown={(e) => e.key === 'Enter' && (e.currentTarget as HTMLInputElement).blur()}
+      className="w-full text-xs text-ink-2 border border-transparent hover:border-border focus:border-border rounded-sm px-1.5 py-1 mt-1 bg-transparent focus:bg-surface outline-none"
+    />
   );
 }

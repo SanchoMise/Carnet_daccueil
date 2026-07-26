@@ -56,6 +56,31 @@ export async function POST(request: NextRequest) {
   return NextResponse.json({ data });
 }
 
+export async function PATCH(request: NextRequest) {
+  if (!isAdminRequest(request)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const { id, caption } = (await request.json()) as { id: string; caption: string | null };
+  if (!id) {
+    return NextResponse.json({ error: 'Missing id' }, { status: 400 });
+  }
+
+  const supabase = createAdminClient();
+  const { data, error } = await supabase
+    .from('images')
+    .update({ caption: caption || null })
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  return NextResponse.json({ data });
+}
+
 export async function DELETE(request: NextRequest) {
   if (!isAdminRequest(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
