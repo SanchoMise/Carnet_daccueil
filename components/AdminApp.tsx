@@ -581,29 +581,37 @@ function ImagesEditor({
   const [dragOver, setDragOver] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [targetField, setTargetField] = useState(fields[0]?.key ?? '');
-  const [caption, setCaption] = useState('');
 
-  const upload = async (file: File) => {
-    if (!targetField) return;
-    setUploading(true);
+  const uploadOne = async (file: File): Promise<ImageRow | null> => {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('section', section);
     formData.append('field_key', targetField);
-    if (caption.trim()) formData.append('caption', caption.trim());
     const res = await fetch('/api/upload', {
       method: 'POST',
       headers: { 'x-admin-key': adminKey },
       body: formData,
     });
-    setUploading(false);
     if (res.ok) {
       const json = await res.json();
-      onChange([...images, json.data]);
-      flash('Image ajoutée ✓');
-      setCaption('');
-    } else {
-      flash(`Échec de l'envoi : ${await readError(res)}`, true);
+      return json.data as ImageRow;
+    }
+    flash(`Échec de l'envoi : ${await readError(res)}`, true);
+    return null;
+  };
+
+  const upload = async (files: File[]) => {
+    if (!targetField || files.length === 0) return;
+    setUploading(true);
+    const added: ImageRow[] = [];
+    for (const file of files) {
+      const row = await uploadOne(file);
+      if (row) added.push(row);
+    }
+    setUploading(false);
+    if (added.length > 0) {
+      onChange([...images, ...added]);
+      flash(added.length > 1 ? `${added.length} images ajoutées ✓` : 'Image ajoutée ✓');
     }
   };
 
@@ -675,11 +683,12 @@ function ImagesEditor({
         </div>
       )}
 
-      <div className="flex flex-col sm:flex-row gap-2 mb-3">
+      <div className="mb-3">
+        <label className="block text-xs text-ink-3 mb-1">Ajouter à la sous-partie</label>
         <select
           value={targetField}
           onChange={(e) => setTargetField(e.target.value)}
-          className="border border-border rounded-sm px-3 py-2 text-sm bg-surface"
+          className="border border-border rounded-sm px-3 py-2 text-sm bg-surface w-full sm:w-auto"
         >
           {fields.map((f) => (
             <option key={f.key} value={f.key}>
@@ -687,12 +696,6 @@ function ImagesEditor({
             </option>
           ))}
         </select>
-        <input
-          placeholder="Légende (optionnel)"
-          value={caption}
-          onChange={(e) => setCaption(e.target.value)}
-          className="flex-1 border border-border rounded-sm px-3 py-2 text-sm"
-        />
       </div>
 
       <label
@@ -704,21 +707,23 @@ function ImagesEditor({
         onDrop={(e) => {
           e.preventDefault();
           setDragOver(false);
-          const file = e.dataTransfer.files?.[0];
-          if (file) upload(file);
+          const files = Array.from(e.dataTransfer.files ?? []);
+          if (files.length) upload(files);
         }}
         className={`flex items-center justify-center border-2 border-dashed rounded-sm h-24 text-sm cursor-pointer transition-colors ${
           dragOver ? 'border-accent bg-accent-light text-accent' : 'border-border text-ink-3'
         }`}
       >
-        {uploading ? 'Envoi…' : 'Glissez-déposez une image ou cliquez pour choisir'}
+        {uploading ? 'Envoi…' : 'Glissez-déposez une ou plusieurs images, ou cliquez pour choisir'}
         <input
           type="file"
           accept="image/*"
+          multiple
           className="hidden"
           onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) upload(file);
+            const files = Array.from(e.target.files ?? []);
+            if (files.length) upload(files);
+            e.target.value = '';
           }}
         />
       </label>

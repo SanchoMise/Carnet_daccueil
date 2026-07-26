@@ -209,9 +209,9 @@ function imgFor(images: ImageRow[], section: string, fieldKey: string): ImageRow
 function BlockImages({ images }: { images: ImageRow[] }) {
   if (images.length === 0) return null;
   return (
-    <div className="flex gap-3 overflow-x-auto mt-3 -mx-1 px-1 pb-1">
+    <div className="flex flex-wrap gap-3 mt-3">
       {images.map((img) => (
-        <figure key={img.id} className="shrink-0 w-40">
+        <figure key={img.id} className="w-40">
           <div className="relative w-40 h-28 rounded-sm overflow-hidden bg-bg">
             <Image src={img.url} alt={img.caption ?? ''} fill sizes="160px" className="object-cover" />
           </div>
