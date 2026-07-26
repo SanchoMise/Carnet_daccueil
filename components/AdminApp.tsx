@@ -728,24 +728,48 @@ function ImagesEditor({
 
 function CaptionInput({ image, onSave }: { image: ImageRow; onSave: (id: string, caption: string) => Promise<void> }) {
   const [value, setValue] = useState(image.caption ?? '');
-  const [saving, setSaving] = useState(false);
+  const [status, setStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const savedRef = useRef(image.caption ?? '');
 
-  const commit = async () => {
-    if (value === (image.caption ?? '')) return;
-    setSaving(true);
-    await onSave(image.id, value);
-    setSaving(false);
+  const commit = useCallback(
+    async (next: string) => {
+      if (next === savedRef.current) return;
+      setStatus('saving');
+      await onSave(image.id, next);
+      savedRef.current = next;
+      setStatus('saved');
+      setTimeout(() => setStatus('idle'), 2000);
+    },
+    [image.id, onSave]
+  );
+
+  const onType = (next: string) => {
+    setValue(next);
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => commit(next), 700);
+  };
+
+  const flush = () => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    commit(value);
   };
 
   return (
-    <input
-      placeholder="Légende…"
-      value={value}
-      disabled={saving}
-      onChange={(e) => setValue(e.target.value)}
-      onBlur={commit}
-      onKeyDown={(e) => e.key === 'Enter' && (e.currentTarget as HTMLInputElement).blur()}
-      className="w-full text-xs text-ink-2 border border-transparent hover:border-border focus:border-border rounded-sm px-1.5 py-1 mt-1 bg-transparent focus:bg-surface outline-none"
-    />
+    <div className="mt-1">
+      <input
+        placeholder="Légende…"
+        value={value}
+        onChange={(e) => onType(e.target.value)}
+        onBlur={flush}
+        onKeyDown={(e) => e.key === 'Enter' && (e.currentTarget as HTMLInputElement).blur()}
+        className="w-full text-xs text-ink-2 border border-border rounded-sm px-1.5 py-1 bg-surface outline-none focus:border-accent"
+      />
+      {status !== 'idle' && (
+        <span className="text-[0.65rem] text-accent">
+          {status === 'saving' ? 'Enregistrement…' : 'Enregistré ✓'}
+        </span>
+      )}
+    </div>
   );
 }
