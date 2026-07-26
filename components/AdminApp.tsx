@@ -97,7 +97,7 @@ export default function AdminApp({ adminKey }: { adminKey: string }) {
         <main className="flex-1 p-4 sm:p-6 max-w-3xl">
           {section.fields.length > 0 && (
             <ContentForm
-              key={section.id}
+              key={`content-${section.id}`}
               section={section.id}
               fields={section.fields}
               contentMap={contentMap}
@@ -122,7 +122,7 @@ export default function AdminApp({ adminKey }: { adminKey: string }) {
           )}
 
           <ImagesEditor
-            key={section.id}
+            key={`images-${section.id}`}
             section={section.id}
             fields={section.fields}
             images={images.filter((i) => i.section === section.id)}
