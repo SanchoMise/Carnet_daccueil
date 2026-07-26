@@ -123,6 +123,7 @@ export default function AdminApp({ adminKey }: { adminKey: string }) {
 
           <ImagesEditor
             section={section.id}
+            fields={section.fields}
             images={images.filter((i) => i.section === section.id)}
             adminKey={adminKey}
             onChange={(sectionImages) =>
@@ -564,12 +565,14 @@ function PlaceFields({
 
 function ImagesEditor({
   section,
+  fields,
   images,
   adminKey,
   onChange,
   flash,
 }: {
   section: string;
+  fields: typeof SECTIONS[number]['fields'];
   images: ImageRow[];
   adminKey: string;
   onChange: (images: ImageRow[]) => void;
@@ -577,12 +580,16 @@ function ImagesEditor({
 }) {
   const [dragOver, setDragOver] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [targetField, setTargetField] = useState('');
+  const [caption, setCaption] = useState('');
 
   const upload = async (file: File) => {
     setUploading(true);
     const formData = new FormData();
     formData.append('file', file);
     formData.append('section', section);
+    if (targetField) formData.append('field_key', targetField);
+    if (caption.trim()) formData.append('caption', caption.trim());
     const res = await fetch('/api/upload', {
       method: 'POST',
       headers: { 'x-admin-key': adminKey },
@@ -593,6 +600,7 @@ function ImagesEditor({
       const json = await res.json();
       onChange([...images, json.data]);
       flash('Image ajoutée ✓');
+      setCaption('');
     } else {
       flash(`Échec de l'envoi : ${await readError(res)}`, true);
     }
@@ -612,23 +620,63 @@ function ImagesEditor({
     }
   };
 
+  const groups: { key: string; label: string; items: ImageRow[] }[] = [
+    { key: '', label: 'Général (haut de la rubrique)', items: images.filter((i) => !i.field_key) },
+    ...fields.map((f) => ({ key: f.key, label: f.label.fr, items: images.filter((i) => i.field_key === f.key) })),
+  ].filter((g) => g.items.length > 0);
+
   return (
     <div className="bg-surface rounded-2xl border border-border p-4 sm:p-6">
       <h2 className="font-serif text-lg mb-4">Images</h2>
 
-      <div className="flex flex-wrap gap-3 mb-4">
-        {images.map((img) => (
-          <div key={img.id} className="relative w-32 h-24 rounded-sm overflow-hidden border border-border group">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={img.url} alt="" className="w-full h-full object-cover" />
-            <button
-              onClick={() => remove(img.id)}
-              className="absolute top-1 right-1 bg-black/60 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-            >
-              ×
-            </button>
-          </div>
-        ))}
+      {groups.length > 0 && (
+        <div className="flex flex-col gap-4 mb-5">
+          {groups.map((g) => (
+            <div key={g.key}>
+              <div className="text-xs font-medium uppercase tracking-wider text-ink-3 mb-2">{g.label}</div>
+              <div className="flex flex-wrap gap-3">
+                {g.items.map((img) => (
+                  <div key={img.id} className="w-32">
+                    <div className="relative w-32 h-24 rounded-sm overflow-hidden border border-border group">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={img.url} alt="" className="w-full h-full object-cover" />
+                      <button
+                        onClick={() => remove(img.id)}
+                        className="absolute top-1 right-1 bg-black/60 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        ×
+                      </button>
+                    </div>
+                    {img.caption && <p className="text-xs text-ink-3 mt-1">{img.caption}</p>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="flex flex-col sm:flex-row gap-2 mb-3">
+        {fields.length > 0 && (
+          <select
+            value={targetField}
+            onChange={(e) => setTargetField(e.target.value)}
+            className="border border-border rounded-sm px-3 py-2 text-sm bg-surface"
+          >
+            <option value="">Général (haut de la rubrique)</option>
+            {fields.map((f) => (
+              <option key={f.key} value={f.key}>
+                {f.label.fr}
+              </option>
+            ))}
+          </select>
+        )}
+        <input
+          placeholder="Légende (optionnel)"
+          value={caption}
+          onChange={(e) => setCaption(e.target.value)}
+          className="flex-1 border border-border rounded-sm px-3 py-2 text-sm"
+        />
       </div>
 
       <label

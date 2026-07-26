@@ -47,8 +47,6 @@ export default function VisitorApp({
   const v = (section: string, key: string, translatable: boolean) =>
     getValue(contentMap, section, key, lang, translatable);
 
-  const imagesFor = (section: string) => images.filter((img) => img.section === section);
-
   const toggleCheck = (i: number) => {
     setChecked((prev) => {
       const next = new Set(prev);
@@ -138,27 +136,23 @@ export default function VisitorApp({
 
               {isOpen && (
                 <div className="px-6 pb-6 border-t border-border">
-                  {imagesFor(s.id).length > 0 && (
-                    <div className="flex gap-2 overflow-x-auto py-4 -mx-1 px-1">
-                      {imagesFor(s.id).map((img) => (
-                        <div key={img.id} className="relative w-40 h-28 shrink-0 rounded-sm overflow-hidden bg-bg">
-                          <Image src={img.url} alt={img.caption ?? ''} fill sizes="160px" className="object-cover" />
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {s.id === 'arrivee' && <ArriveeBody v={v} lang={lang} />}
-                  {s.id === 'wifi' && <WifiBody v={v} lang={lang} onShowQr={() => setWifiQrOpen(true)} />}
-                  {s.id === 'entree' && <GenericBody section={s} v={v} lang={lang} />}
-                  {s.id === 'cuisine' && <CuisineBody v={v} lang={lang} />}
+                  {s.id === 'arrivee' && <ArriveeBody v={v} lang={lang} images={images} />}
+                  {s.id === 'wifi' && <WifiBody v={v} lang={lang} images={images} onShowQr={() => setWifiQrOpen(true)} />}
+                  {s.id === 'entree' && <GenericBody section={s} v={v} lang={lang} images={images} />}
+                  {s.id === 'salon' && <GenericBody section={s} v={v} lang={lang} images={images} />}
+                  {s.id === 'canicule' && <GenericBody section={s} v={v} lang={lang} images={images} />}
+                  {s.id === 'cuisine' && <CuisineBody v={v} lang={lang} images={images} />}
                   {(s.id === 'chambre-parentale' || s.id === 'chambre-filles') && (
-                    <RoomBody sectionId={s.id} v={v} lang={lang} />
+                    <RoomBody sectionId={s.id} v={v} lang={lang} images={images} />
                   )}
-                  {s.id === 'regles' && <SimpleBody value={v('regles', 'rules_note', true)} />}
-                  {s.id === 'transports' && <SimpleBody value={v('transports', 'transports_note', true)} />}
+                  {s.id === 'regles' && (
+                    <SimpleBody section="regles" fieldKey="rules_note" value={v('regles', 'rules_note', true)} images={images} />
+                  )}
+                  {s.id === 'transports' && (
+                    <SimpleBody section="transports" fieldKey="transports_note" value={v('transports', 'transports_note', true)} images={images} />
+                  )}
                   {s.id === 'bons-plans' && <BonsPlansBody places={places} lang={lang} />}
-                  {s.id === 'urgences' && <UrgencesBody v={v} lang={lang} />}
+                  {s.id === 'urgences' && <UrgencesBody v={v} lang={lang} images={images} />}
                   {s.id === 'checklist' && <ChecklistBody v={v} lang={lang} checked={checked} onToggle={toggleCheck} />}
                 </div>
               )}
@@ -207,11 +201,33 @@ function WifiQrModal({ ssid, password, lang, onClose }: { ssid: string; password
 
 type VFn = (section: string, key: string, translatable: boolean) => string;
 
-function Block({ label, children }: { label?: string; children: React.ReactNode }) {
+/** Photos attached to a specific field/sous-partie (not the section-level fallback). */
+function imgFor(images: ImageRow[], section: string, fieldKey: string): ImageRow[] {
+  return images.filter((img) => img.section === section && img.field_key === fieldKey);
+}
+
+function BlockImages({ images }: { images: ImageRow[] }) {
+  if (images.length === 0) return null;
+  return (
+    <div className="flex gap-3 overflow-x-auto mt-3 -mx-1 px-1 pb-1">
+      {images.map((img) => (
+        <figure key={img.id} className="shrink-0 w-40">
+          <div className="relative w-40 h-28 rounded-sm overflow-hidden bg-bg">
+            <Image src={img.url} alt={img.caption ?? ''} fill sizes="160px" className="object-cover" />
+          </div>
+          {img.caption && <figcaption className="text-xs text-ink-3 mt-1">{img.caption}</figcaption>}
+        </figure>
+      ))}
+    </div>
+  );
+}
+
+function Block({ label, images, children }: { label?: string; images?: ImageRow[]; children: React.ReactNode }) {
   return (
     <div className="py-5 border-b border-border last:border-b-0 last:pb-0">
-      {label && <div className="text-xs font-medium uppercase tracking-wider text-ink-3 mb-2">{label}</div>}
+      {label && <div className="text-xs font-bold uppercase tracking-wider text-accent mb-2">{label}</div>}
       {children}
+      {images && <BlockImages images={images} />}
     </div>
   );
 }
@@ -228,7 +244,7 @@ function HighlightBox({ icon, title, body }: { icon: string; title?: string; bod
   );
 }
 
-function ArriveeBody({ v, lang }: { v: VFn; lang: Lang }) {
+function ArriveeBody({ v, lang, images }: { v: VFn; lang: Lang; images: ImageRow[] }) {
   const keyWarning = v('arrivee', 'key_warning', true);
   const doorsNote = v('arrivee', 'doors_note', true);
   const digicode = v('arrivee', 'digicode', false);
@@ -242,12 +258,12 @@ function ArriveeBody({ v, lang }: { v: VFn; lang: Lang }) {
   return (
     <>
       {(keyWarning || doorsNote) && (
-        <Block>
+        <Block images={imgFor(images, 'arrivee', 'key_warning')}>
           {keyWarning && <HighlightBox icon="key" body={keyWarning} />}
           {doorsNote && <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line mt-2">{doorsNote}</p>}
         </Block>
       )}
-      <Block>
+      <Block images={imgFor(images, 'arrivee', 'entrance_note')}>
         <HighlightBox icon="building" body={entranceNote || UI_LABELS.to_complete[lang]} />
         {digicode && (
           <div className="inline-flex items-center gap-1 my-2">
@@ -263,7 +279,7 @@ function ArriveeBody({ v, lang }: { v: VFn; lang: Lang }) {
           </div>
         )}
       </Block>
-      <Block>
+      <Block images={imgFor(images, 'arrivee', 'apartment_note')}>
         <HighlightBox icon="home" body={apartmentNote || UI_LABELS.to_complete[lang]} />
       </Block>
       <Block>
@@ -307,7 +323,7 @@ function CopyButton({ value, lang }: { value: string; lang: Lang }) {
   );
 }
 
-function WifiBody({ v, lang, onShowQr }: { v: VFn; lang: Lang; onShowQr: () => void }) {
+function WifiBody({ v, lang, images, onShowQr }: { v: VFn; lang: Lang; images: ImageRow[]; onShowQr: () => void }) {
   const ssid = v('wifi', 'wifi_ssid', false);
   const password = v('wifi', 'wifi_password', false);
   const devicesNote = v('wifi', 'devices_note', true);
@@ -343,18 +359,18 @@ function WifiBody({ v, lang, onShowQr }: { v: VFn; lang: Lang; onShowQr: () => v
           <p className="text-xs text-ink-3 mt-1">{t(UI_LABELS.wifi_mobile_hint, lang)}</p>
         )}
       </Block>
-      <Block>
+      <Block images={imgFor(images, 'wifi', 'devices_note')}>
         <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line">
           {devicesNote || UI_LABELS.to_complete[lang]}
         </p>
       </Block>
       {lightsFansNote && (
-        <Block label={fieldLabel('wifi', 'lights_fans_note')?.[lang]}>
+        <Block label={fieldLabel('wifi', 'lights_fans_note')?.[lang]} images={imgFor(images, 'wifi', 'lights_fans_note')}>
           <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line">{lightsFansNote}</p>
         </Block>
       )}
       {tvNote && (
-        <Block label={fieldLabel('wifi', 'tv_note')?.[lang]}>
+        <Block label={fieldLabel('wifi', 'tv_note')?.[lang]} images={imgFor(images, 'wifi', 'tv_note')}>
           <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line">{tvNote}</p>
         </Block>
       )}
@@ -362,39 +378,45 @@ function WifiBody({ v, lang, onShowQr }: { v: VFn; lang: Lang; onShowQr: () => v
   );
 }
 
-function CuisineBody({ v, lang }: { v: VFn; lang: Lang }) {
+function CuisineBody({ v, lang, images }: { v: VFn; lang: Lang; images: ImageRow[] }) {
   const equipmentNote = v('cuisine', 'equipment_note', true);
   const inductionNote = v('cuisine', 'induction_note', true);
   const dishwasherNote = v('cuisine', 'dishwasher_note', true);
   const coffeeNote = v('cuisine', 'coffee_note', true);
   const sinkNote = v('cuisine', 'sink_note', true);
+  const lightsNote = v('cuisine', 'lights_note', true);
   const binsLocation = v('cuisine', 'bins_location', true);
 
   return (
     <>
-      <Block>
+      <Block images={imgFor(images, 'cuisine', 'equipment_note')}>
         <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line">
           {equipmentNote || UI_LABELS.to_complete[lang]}
         </p>
       </Block>
       {inductionNote && (
-        <Block label={fieldLabel('cuisine', 'induction_note')?.[lang]}>
+        <Block label={fieldLabel('cuisine', 'induction_note')?.[lang]} images={imgFor(images, 'cuisine', 'induction_note')}>
           <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line">{inductionNote}</p>
         </Block>
       )}
       {dishwasherNote && (
-        <Block label={fieldLabel('cuisine', 'dishwasher_note')?.[lang]}>
+        <Block label={fieldLabel('cuisine', 'dishwasher_note')?.[lang]} images={imgFor(images, 'cuisine', 'dishwasher_note')}>
           <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line">{dishwasherNote}</p>
         </Block>
       )}
       {coffeeNote && (
-        <Block label={fieldLabel('cuisine', 'coffee_note')?.[lang]}>
+        <Block label={fieldLabel('cuisine', 'coffee_note')?.[lang]} images={imgFor(images, 'cuisine', 'coffee_note')}>
           <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line">{coffeeNote}</p>
         </Block>
       )}
       {sinkNote && (
-        <Block label={fieldLabel('cuisine', 'sink_note')?.[lang]}>
+        <Block label={fieldLabel('cuisine', 'sink_note')?.[lang]} images={imgFor(images, 'cuisine', 'sink_note')}>
           <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line">{sinkNote}</p>
+        </Block>
+      )}
+      {lightsNote && (
+        <Block label={fieldLabel('cuisine', 'lights_note')?.[lang]} images={imgFor(images, 'cuisine', 'lights_note')}>
+          <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line">{lightsNote}</p>
         </Block>
       )}
       <Block>
@@ -414,7 +436,7 @@ function CuisineBody({ v, lang }: { v: VFn; lang: Lang }) {
         </div>
       </Block>
       {binsLocation && (
-        <Block label={fieldLabel('cuisine', 'bins_location')?.[lang]}>
+        <Block label={fieldLabel('cuisine', 'bins_location')?.[lang]} images={imgFor(images, 'cuisine', 'bins_location')}>
           <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line">{binsLocation}</p>
         </Block>
       )}
@@ -423,7 +445,7 @@ function CuisineBody({ v, lang }: { v: VFn; lang: Lang }) {
 }
 
 /** Renders every filled field of a section as its own labeled block, in declaration order. */
-function GenericBody({ section, v, lang }: { section: SectionDef; v: VFn; lang: Lang }) {
+function GenericBody({ section, v, lang, images }: { section: SectionDef; v: VFn; lang: Lang; images: ImageRow[] }) {
   const filled = section.fields.filter((f) => v(section.id, f.key, f.translatable));
 
   if (filled.length === 0) {
@@ -437,7 +459,7 @@ function GenericBody({ section, v, lang }: { section: SectionDef; v: VFn; lang: 
   return (
     <>
       {filled.map((f) => (
-        <Block key={f.key} label={f.label[lang]}>
+        <Block key={f.key} label={f.label[lang]} images={imgFor(images, section.id, f.key)}>
           <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line">
             {v(section.id, f.key, f.translatable)}
           </p>
@@ -447,7 +469,7 @@ function GenericBody({ section, v, lang }: { section: SectionDef; v: VFn; lang: 
   );
 }
 
-function RoomBody({ sectionId, v, lang }: { sectionId: string; v: VFn; lang: Lang }) {
+function RoomBody({ sectionId, v, lang, images }: { sectionId: string; v: VFn; lang: Lang; images: ImageRow[] }) {
   const introNote = v(sectionId, 'intro_note', true);
   const voletNote = v(sectionId, 'volet_note', true);
   const lightsNote = v(sectionId, 'lights_note', true);
@@ -456,28 +478,28 @@ function RoomBody({ sectionId, v, lang }: { sectionId: string; v: VFn; lang: Lan
 
   return (
     <>
-      <Block>
+      <Block images={imgFor(images, sectionId, 'intro_note')}>
         <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line">
           {introNote || UI_LABELS.to_complete[lang]}
         </p>
       </Block>
       {voletNote && (
-        <Block label={fieldLabel(sectionId, 'volet_note')?.[lang]}>
+        <Block label={fieldLabel(sectionId, 'volet_note')?.[lang]} images={imgFor(images, sectionId, 'volet_note')}>
           <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line">{voletNote}</p>
         </Block>
       )}
       {lightsNote && (
-        <Block label={fieldLabel(sectionId, 'lights_note')?.[lang]}>
+        <Block label={fieldLabel(sectionId, 'lights_note')?.[lang]} images={imgFor(images, sectionId, 'lights_note')}>
           <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line">{lightsNote}</p>
         </Block>
       )}
       {sonosNote && (
-        <Block label={fieldLabel(sectionId, 'sonos_note')?.[lang]}>
+        <Block label={fieldLabel(sectionId, 'sonos_note')?.[lang]} images={imgFor(images, sectionId, 'sonos_note')}>
           <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line">{sonosNote}</p>
         </Block>
       )}
       {fanNote && (
-        <Block label={fieldLabel(sectionId, 'fan_note')?.[lang]}>
+        <Block label={fieldLabel(sectionId, 'fan_note')?.[lang]} images={imgFor(images, sectionId, 'fan_note')}>
           <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line">{fanNote}</p>
         </Block>
       )}
@@ -485,9 +507,9 @@ function RoomBody({ sectionId, v, lang }: { sectionId: string; v: VFn; lang: Lan
   );
 }
 
-function SimpleBody({ value }: { value: string }) {
+function SimpleBody({ section, fieldKey, value, images }: { section: string; fieldKey: string; value: string; images: ImageRow[] }) {
   return (
-    <Block>
+    <Block images={imgFor(images, section, fieldKey)}>
       <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line">{value}</p>
     </Block>
   );
@@ -545,7 +567,7 @@ function BonsPlansBody({ places, lang }: { places: PlaceRow[]; lang: Lang }) {
   );
 }
 
-function UrgencesBody({ v, lang }: { v: VFn; lang: Lang }) {
+function UrgencesBody({ v, lang, images }: { v: VFn; lang: Lang; images: ImageRow[] }) {
   const hostPhone = v('urgences', 'host_phone', false);
   const plumberPhone = v('urgences', 'plumber_phone', false);
   const pharmacyNote = v('urgences', 'pharmacy_note', true);
@@ -577,10 +599,11 @@ function UrgencesBody({ v, lang }: { v: VFn; lang: Lang }) {
       ))}
       {electricalNote && (
         <div className="pt-3.5">
-          <div className="text-xs font-medium uppercase tracking-wider text-ink-3 mb-1.5">
+          <div className="text-xs font-bold uppercase tracking-wider text-accent mb-1.5">
             {fieldLabel('urgences', 'electrical_note')?.[lang]}
           </div>
           <p className="text-sm text-ink-2 leading-relaxed whitespace-pre-line">{electricalNote}</p>
+          <BlockImages images={imgFor(images, 'urgences', 'electrical_note')} />
         </div>
       )}
     </div>

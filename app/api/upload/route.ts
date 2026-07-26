@@ -14,7 +14,8 @@ export async function POST(request: NextRequest) {
   const formData = await request.formData();
   const file = formData.get('file') as File | null;
   const section = formData.get('section') as string | null;
-  const caption = (formData.get('caption') as string | null) ?? null;
+  const caption = (formData.get('caption') as string | null) || null;
+  const fieldKey = (formData.get('field_key') as string | null) || null;
 
   if (!file || !section) {
     return NextResponse.json({ error: 'Missing file or section' }, { status: 400 });
@@ -44,7 +45,7 @@ export async function POST(request: NextRequest) {
 
   const { data, error: insertError } = await supabase
     .from('images')
-    .insert({ section, url: publicUrlData.publicUrl, caption })
+    .insert({ section, field_key: fieldKey, url: publicUrlData.publicUrl, caption })
     .select()
     .single();
 

@@ -126,6 +126,7 @@ export const SECTIONS: SectionDef[] = [
       { key: 'dishwasher_note', translatable: true, type: 'textarea', label: { fr: 'Lave-vaisselle', en: 'Dishwasher', es: 'Lavavajillas' } },
       { key: 'coffee_note', translatable: true, type: 'textarea', label: { fr: 'Machine à café', en: 'Coffee machine', es: 'Cafetera' } },
       { key: 'sink_note', translatable: true, type: 'textarea', label: { fr: 'Évier & vaisselle', en: 'Sink & washing up', es: 'Fregadero' } },
+      { key: 'lights_note', translatable: true, type: 'textarea', label: { fr: 'Lumières', en: 'Lights', es: 'Luces' } },
       { key: 'bins_location', translatable: true, type: 'textarea', label: { fr: 'Tri des déchets & poubelles', en: 'Waste sorting & bins', es: 'Reciclaje y basura' } },
     ],
   },
@@ -138,18 +139,36 @@ export const SECTIONS: SectionDef[] = [
       { key: 'intro_note', translatable: true, type: 'textarea', label: { fr: 'Introduction', en: 'Introduction', es: 'Introducción' } },
       { key: 'volet_note', translatable: true, type: 'textarea', label: { fr: 'Volet', en: 'Shutter', es: 'Persiana' } },
       { key: 'lights_note', translatable: true, type: 'textarea', label: { fr: 'Lumières', en: 'Lights', es: 'Luces' } },
-      { key: 'fan_note', translatable: true, type: 'textarea', label: { fr: 'Ventilateur', en: 'Fan', es: 'Ventilador' } },
+      { key: 'fan_note', translatable: true, type: 'textarea', label: { fr: 'Ventilateur de plafond', en: 'Ceiling fan', es: 'Ventilador de techo' } },
     ],
   },
   {
     id: 'chambre-filles',
     icon: 'bed',
     title: { fr: 'Chambre des filles', en: "Girls' bedroom", es: 'Habitación de las niñas' },
-    subtitle: { fr: 'Lumières, Sonos', en: 'Lights, Sonos', es: 'Luces, Sonos' },
+    subtitle: { fr: 'Lumières, ventilateur', en: 'Lights, fan', es: 'Luces, ventilador' },
     fields: [
       { key: 'intro_note', translatable: true, type: 'textarea', label: { fr: 'Introduction', en: 'Introduction', es: 'Introducción' } },
       { key: 'lights_note', translatable: true, type: 'textarea', label: { fr: 'Lumières', en: 'Lights', es: 'Luces' } },
-      { key: 'sonos_note', translatable: true, type: 'textarea', label: { fr: 'Enceinte Sonos', en: 'Sonos speaker', es: 'Altavoz Sonos' } },
+      { key: 'fan_note', translatable: true, type: 'textarea', label: { fr: 'Ventilateur de plafond', en: 'Ceiling fan', es: 'Ventilador de techo' } },
+    ],
+  },
+  {
+    id: 'salon',
+    icon: 'sofa',
+    title: { fr: 'Salon', en: 'Living room', es: 'Salón' },
+    subtitle: { fr: 'Équipements', en: 'Equipment', es: 'Equipamiento' },
+    fields: [
+      { key: 'salon_note', translatable: true, type: 'textarea', label: { fr: 'Salon', en: 'Living room', es: 'Salón' } },
+    ],
+  },
+  {
+    id: 'canicule',
+    icon: 'sun',
+    title: { fr: 'En cas de canicule', en: 'In case of heatwave', es: 'En caso de ola de calor' },
+    subtitle: { fr: 'Conseils & astuces', en: 'Tips & advice', es: 'Consejos' },
+    fields: [
+      { key: 'canicule_note', translatable: true, type: 'textarea', label: { fr: 'En cas de canicule', en: 'In case of heatwave', es: 'En caso de ola de calor' } },
     ],
   },
   {
@@ -226,9 +245,9 @@ export const UI_LABELS = {
     es: 'Todo lo que necesitas saber para sentirte como en casa. No dudes en contactarnos si tienes alguna pregunta. Nos mudamos hace solo unos meses, así que gracias por tu indulgencia con la decoración y los detalles aún en curso.',
   },
   footer: {
-    fr: 'Bon séjour chez nous 🏠 — Merci d\'être nos hôtes HomeExchange',
-    en: 'Enjoy your stay 🏠 — Thank you for being our HomeExchange guests',
-    es: '¡Que disfrutes tu estancia! 🏠 — Gracias por ser nuestros huéspedes',
+    fr: 'Bon séjour chez nous 🏠',
+    en: 'Enjoy your stay 🏠',
+    es: '¡Que disfrutes tu estancia! 🏠',
   },
   connect_wifi: { fr: 'Afficher le QR code wifi', en: 'Show wifi QR code', es: 'Mostrar código QR wifi' },
   wifi_qr_hint: {

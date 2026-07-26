@@ -87,6 +87,20 @@ const paths: Record<string, JSX.Element> = {
       <circle cx="15" cy="12" r="1" />
     </>
   ),
+  sofa: (
+    <>
+      <path d="M4 15v-3a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3" />
+      <path d="M2 15a1 1 0 0 1 1-1h18a1 1 0 0 1 1 1v2a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2z" />
+      <path d="M4 19v1" />
+      <path d="M20 19v1" />
+    </>
+  ),
+  sun: (
+    <>
+      <circle cx="12" cy="12" r="4.5" />
+      <path d="M12 2v2.5M12 19.5V22M4.2 4.2l1.8 1.8M18 18l1.8 1.8M2 12h2.5M19.5 12H22M4.2 19.8l1.8-1.8M18 6l1.8-1.8" />
+    </>
+  ),
 };
 
 export function Icon({ name, className }: { name: string; className?: string }) {

@@ -33,11 +33,15 @@ alter table places add column if not exists walk_minutes integer;
 create table if not exists images (
   id uuid primary key default gen_random_uuid(),
   section text not null,
+  field_key text,
   url text not null,
   caption text,
   position integer default 0,
   created_at timestamptz default now()
 );
+
+-- Migration : ajoute la colonne si la table "images" existe déjà sans elle.
+alter table images add column if not exists field_key text;
 
 -- Row Level Security: lecture publique (le carnet est visible sans auth),
 -- écriture réservée aux routes API qui utilisent la service role key

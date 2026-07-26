@@ -28,6 +28,8 @@ export type PlaceRow = {
 export type ImageRow = {
   id: string;
   section: string;
+  /** Which field/sous-partie within the section this photo belongs to (null = section-level, shown at top). */
+  field_key: string | null;
   url: string;
   caption: string | null;
   position: number;
