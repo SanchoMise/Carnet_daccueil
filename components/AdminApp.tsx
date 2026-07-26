@@ -122,6 +122,7 @@ export default function AdminApp({ adminKey }: { adminKey: string }) {
           )}
 
           <ImagesEditor
+            key={section.id}
             section={section.id}
             fields={section.fields}
             images={images.filter((i) => i.section === section.id)}
