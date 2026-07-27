@@ -105,14 +105,12 @@ export const SECTIONS: SectionDef[] = [
   {
     id: 'wifi',
     icon: 'wifi',
-    title: { fr: 'Wifi & équipements', en: 'Wifi & appliances', es: 'Wifi & electrodomésticos' },
-    subtitle: { fr: 'Connexion, TV, appareils', en: 'Connection, TV, devices', es: 'Conexión, TV, aparatos' },
+    title: { fr: 'Wifi & domotique', en: 'Wifi & smart home', es: 'Wifi & domótica' },
+    subtitle: { fr: 'Connexion, appareils', en: 'Connection, devices', es: 'Conexión, aparatos' },
     fields: [
       { key: 'wifi_ssid', translatable: false, type: 'text', group: 'Connexion wifi', label: { fr: 'Nom du réseau (SSID)', en: 'Network name (SSID)', es: 'Nombre de la red (SSID)' } },
       { key: 'wifi_password', translatable: false, type: 'text', group: 'Connexion wifi', label: { fr: 'Mot de passe wifi', en: 'Wifi password', es: 'Contraseña wifi' } },
       { key: 'devices_note', translatable: true, type: 'textarea', group: 'Appareils', label: { fr: 'Appareils (TV, Sonos, lave-linge...)', en: 'Appliances (TV, Sonos, washer...)', es: 'Aparatos (TV, Sonos, lavadora...)' } },
-      { key: 'lights_fans_note', translatable: true, type: 'textarea', group: 'Appareils', label: { fr: 'Lumières & ventilateurs de plafond', en: 'Lights & ceiling fans', es: 'Luces y ventiladores de techo' } },
-      { key: 'tv_note', translatable: true, type: 'textarea', group: 'Appareils', label: { fr: 'Vidéoprojecteur / TV', en: 'Projector / TV', es: 'Proyector / TV' } },
     ],
   },
   {
@@ -203,9 +201,9 @@ export const SECTIONS: SectionDef[] = [
     subtitle: { fr: 'Numéros utiles', en: 'Useful numbers', es: 'Números útiles' },
     fields: [
       { key: 'host_phone', translatable: false, type: 'text', group: 'Contacts', label: { fr: "Téléphone de l'hôte", en: 'Host phone', es: 'Teléfono del anfitrión' } },
+      { key: 'contact2_name', translatable: false, type: 'text', group: 'Contacts', label: { fr: "Nom du 2ème contact d'urgence", en: '2nd emergency contact name', es: 'Nombre del 2º contacto de emergencia' } },
+      { key: 'contact2_phone', translatable: false, type: 'text', group: 'Contacts', label: { fr: "Téléphone du 2ème contact d'urgence", en: '2nd emergency contact phone', es: 'Teléfono del 2º contacto de emergencia' } },
       { key: 'plumber_phone', translatable: false, type: 'text', group: 'Contacts', label: { fr: 'Plombier / dépannage', en: 'Plumber / repairs', es: 'Fontanero / reparaciones' } },
-      { key: 'pharmacy_note', translatable: true, type: 'textarea', group: 'Pharmacie / hôpital', label: { fr: 'Pharmacie / hôpital le plus proche', en: 'Nearest pharmacy / hospital', es: 'Farmacia / hospital más cercano' } },
-      { key: 'pharmacy_link', translatable: false, type: 'text', group: 'Pharmacie / hôpital', label: { fr: 'Lien Google Maps pharmacie', en: 'Pharmacy Google Maps link', es: 'Enlace de Google Maps' } },
       { key: 'electrical_note', translatable: true, type: 'textarea', group: 'Tableau électrique', label: { fr: 'Tableau électrique / plombs', en: 'Electrical panel / fuses', es: 'Cuadro eléctrico / fusibles' } },
     ],
   },
@@ -275,10 +273,12 @@ export const UI_LABELS = {
   tri_gray_sub: { fr: 'Déchets non recyclables', en: 'Non-recyclable waste', es: 'Residuos no reciclables' },
   host: { fr: 'Votre hôte', en: 'Your host', es: 'Vuestro anfitrión' },
   host_role: { fr: 'Pour toute question', en: 'For any question', es: 'Para cualquier pregunta' },
+  contact2_role: { fr: "Contact d'urgence", en: 'Emergency contact', es: 'Contacto de emergencia' },
   emergency: { fr: 'SAMU / Urgences', en: 'Emergency services', es: 'Servicios de emergencia' },
   plumber: { fr: 'Plombier / dépannage', en: 'Plumber / repairs', es: 'Fontanero / reparaciones' },
   plumber_role: { fr: 'En cas de problème technique', en: 'For technical issues', es: 'Para problemas técnicos' },
-  pharmacy: { fr: 'Pharmacie / hôpital', en: 'Pharmacy / hospital', es: 'Farmacia / hospital' },
+  pharmacy: { fr: 'Pharmacie la plus proche', en: 'Nearest pharmacy', es: 'Farmacia más cercana' },
+  hospital: { fr: 'Hôpital le plus proche', en: 'Nearest hospital', es: 'Hospital más cercano' },
   to_complete: { fr: 'À compléter', en: 'To complete', es: 'Por completar' },
   walk_minutes: { fr: 'min à pied', en: 'min walk', es: 'min a pie' },
 } satisfies Record<string, Record<Lang, string>>;

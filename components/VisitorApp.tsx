@@ -6,6 +6,7 @@ import { Icon } from './icons';
 import { SECTIONS, CHECKLIST_ITEMS, UI_LABELS, fieldLabel, type SectionDef } from '@/lib/sections';
 import { ContentMap, ImageRow, Lang, LANGS, PlaceRow } from '@/lib/types';
 import { getValue } from '@/lib/contentValue';
+import { APARTMENT_COORDS } from '@/lib/geo';
 
 function t(dict: Record<Lang, string>, lang: Lang) {
   return dict[lang];
@@ -149,7 +150,7 @@ export default function VisitorApp({
                     <SimpleBody section="regles" fieldKey="rules_note" value={v('regles', 'rules_note', true)} images={images} />
                   )}
                   {s.id === 'transports' && (
-                    <SimpleBody section="transports" fieldKey="transports_note" value={v('transports', 'transports_note', true)} images={images} />
+                    <TransportsBody value={v('transports', 'transports_note', true)} images={images} />
                   )}
                   {s.id === 'bons-plans' && <BonsPlansBody places={places} lang={lang} />}
                   {s.id === 'urgences' && <UrgencesBody v={v} lang={lang} images={images} />}
@@ -327,8 +328,6 @@ function WifiBody({ v, lang, images, onShowQr }: { v: VFn; lang: Lang; images: I
   const ssid = v('wifi', 'wifi_ssid', false);
   const password = v('wifi', 'wifi_password', false);
   const devicesNote = v('wifi', 'devices_note', true);
-  const lightsFansNote = v('wifi', 'lights_fans_note', true);
-  const tvNote = v('wifi', 'tv_note', true);
   const isMobile = useIsMobile();
 
   return (
@@ -364,16 +363,6 @@ function WifiBody({ v, lang, images, onShowQr }: { v: VFn; lang: Lang; images: I
           {devicesNote || UI_LABELS.to_complete[lang]}
         </p>
       </Block>
-      {lightsFansNote && (
-        <Block label={fieldLabel('wifi', 'lights_fans_note')?.[lang]} images={imgFor(images, 'wifi', 'lights_fans_note')}>
-          <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line">{lightsFansNote}</p>
-        </Block>
-      )}
-      {tvNote && (
-        <Block label={fieldLabel('wifi', 'tv_note')?.[lang]} images={imgFor(images, 'wifi', 'tv_note')}>
-          <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line">{tvNote}</p>
-        </Block>
-      )}
     </>
   );
 }
@@ -515,6 +504,30 @@ function SimpleBody({ section, fieldKey, value, images }: { section: string; fie
   );
 }
 
+function TransportsBody({ value, images }: { value: string; images: ImageRow[] }) {
+  return (
+    <>
+      <Block>
+        <div className="rounded-sm overflow-hidden border border-border">
+          <iframe
+            title="Métro, bus et vélib autour de l'appartement"
+            width="100%"
+            height="320"
+            style={{ border: 0 }}
+            loading="lazy"
+            src={`https://maps.google.com/maps?q=${APARTMENT_COORDS.lat},${APARTMENT_COORDS.lon}&z=17&output=embed`}
+          />
+        </div>
+      </Block>
+      {value && (
+        <Block images={imgFor(images, 'transports', 'transports_note')}>
+          <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line">{value}</p>
+        </Block>
+      )}
+    </>
+  );
+}
+
 function BonsPlansBody({ places, lang }: { places: PlaceRow[]; lang: Lang }) {
   if (places.length === 0) {
     return (
@@ -569,16 +582,26 @@ function BonsPlansBody({ places, lang }: { places: PlaceRow[]; lang: Lang }) {
 
 function UrgencesBody({ v, lang, images }: { v: VFn; lang: Lang; images: ImageRow[] }) {
   const hostPhone = v('urgences', 'host_phone', false);
+  const contact2Name = v('urgences', 'contact2_name', false);
+  const contact2Phone = v('urgences', 'contact2_phone', false);
   const plumberPhone = v('urgences', 'plumber_phone', false);
-  const pharmacyNote = v('urgences', 'pharmacy_note', true);
-  const pharmacyLink = v('urgences', 'pharmacy_link', false);
   const electricalNote = v('urgences', 'electrical_note', true);
+  const pharmacyName = v('urgences', 'pharmacy_name', false);
+  const pharmacyAddress = v('urgences', 'pharmacy_address', false);
+  const pharmacyMapsUrl = v('urgences', 'pharmacy_maps_url', false);
+  const hospitalName = v('urgences', 'hospital_name', false);
+  const hospitalAddress = v('urgences', 'hospital_address', false);
+  const hospitalMapsUrl = v('urgences', 'hospital_maps_url', false);
 
   const rows = [
     { avatar: '👤', name: t(UI_LABELS.host, lang), role: t(UI_LABELS.host_role, lang), link: hostPhone ? `tel:${hostPhone}` : '#', label: hostPhone || UI_LABELS.to_complete[lang] },
+    ...(contact2Name || contact2Phone
+      ? [{ avatar: '👤', name: contact2Name || t(UI_LABELS.contact2_role, lang), role: t(UI_LABELS.contact2_role, lang), link: contact2Phone ? `tel:${contact2Phone}` : '#', label: contact2Phone || UI_LABELS.to_complete[lang] }]
+      : []),
     { avatar: '🚨', name: t(UI_LABELS.emergency, lang), role: '15 · 17 · 18 · 112', link: 'tel:112', label: '112' },
     { avatar: '🔧', name: t(UI_LABELS.plumber, lang), role: t(UI_LABELS.plumber_role, lang), link: plumberPhone ? `tel:${plumberPhone}` : '#', label: plumberPhone || UI_LABELS.to_complete[lang] },
-    { avatar: '🏥', name: t(UI_LABELS.pharmacy, lang), role: pharmacyNote || UI_LABELS.to_complete[lang], link: pharmacyLink || '#', label: pharmacyLink ? 'Google Maps' : UI_LABELS.to_complete[lang] },
+    { avatar: '💊', name: t(UI_LABELS.pharmacy, lang), role: pharmacyName || pharmacyAddress || UI_LABELS.to_complete[lang], link: pharmacyMapsUrl || '#', label: pharmacyMapsUrl ? 'Google Maps' : UI_LABELS.to_complete[lang] },
+    { avatar: '🏥', name: t(UI_LABELS.hospital, lang), role: hospitalName || hospitalAddress || UI_LABELS.to_complete[lang], link: hospitalMapsUrl || '#', label: hospitalMapsUrl ? 'Google Maps' : UI_LABELS.to_complete[lang] },
   ];
 
   return (

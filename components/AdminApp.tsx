@@ -121,6 +121,24 @@ export default function AdminApp({ adminKey }: { adminKey: string }) {
             <PlacesEditor places={places} adminKey={adminKey} onChange={setPlaces} flash={flash} />
           )}
 
+          {section.id === 'urgences' && (
+            <EmergencyPlacesEditor
+              contentMap={contentMap}
+              adminKey={adminKey}
+              flash={flash}
+              onSaved={(items) => {
+                setContentMap((prev) => {
+                  const next = { ...prev, urgences: { ...prev.urgences } };
+                  for (const item of items) {
+                    next.urgences[item.key] ??= { fr: '', en: '', es: '' } as Record<Lang, string>;
+                    next.urgences[item.key] = { ...next.urgences[item.key], [item.lang]: item.value };
+                  }
+                  return next;
+                });
+              }}
+            />
+          )}
+
           <ImagesEditor
             key={`images-${section.id}`}
             section={section.id}
@@ -423,24 +441,26 @@ function PlacesEditor({
   );
 }
 
+type AddressValue = { name?: string; address: string; maps_url: string; walk_minutes: number | null };
+
 function AddressSearch({
-  form,
-  setForm,
+  value,
+  onChange,
   adminKey,
 }: {
-  form: Partial<PlaceRow>;
-  setForm: (form: Partial<PlaceRow>) => void;
+  value: AddressValue;
+  onChange: (patch: Partial<AddressValue>) => void;
   adminKey: string;
 }) {
-  const [query, setQuery] = useState(form.address ?? '');
+  const [query, setQuery] = useState(value.address ?? '');
   const [results, setResults] = useState<{ label: string; address: string; lat: number; lon: number }[]>([]);
   const [open, setOpen] = useState(false);
   const [searching, setSearching] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    setQuery(form.address ?? '');
-  }, [form.address]);
+    setQuery(value.address ?? '');
+  }, [value.address]);
 
   const search = (q: string) => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -464,9 +484,8 @@ function AddressSearch({
     // Search by "name + address" text instead of raw coordinates: Google Maps then resolves
     // to the actual business listing (reviews, hours...) when it recognizes it, rather than
     // just dropping a bare pin.
-    const mapsQuery = form.name ? `${form.name} ${r.address}` : r.label;
-    setForm({
-      ...form,
+    const mapsQuery = value.name ? `${value.name} ${r.address}` : r.label;
+    onChange({
       address: r.address,
       maps_url: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapsQuery)}`,
       walk_minutes: estimateWalkMinutesFromApartment(r.lat, r.lon),
@@ -483,7 +502,7 @@ function AddressSearch({
         value={query}
         onChange={(e) => {
           setQuery(e.target.value);
-          setForm({ ...form, address: e.target.value });
+          onChange({ address: e.target.value });
           search(e.target.value);
         }}
         onFocus={() => results.length > 0 && setOpen(true)}
@@ -545,7 +564,11 @@ function PlaceFields({
         className="border border-border rounded-sm px-3 py-2 text-sm col-span-2"
         rows={2}
       />
-      <AddressSearch form={form} setForm={setForm} adminKey={adminKey} />
+      <AddressSearch
+        value={{ name: form.name, address: form.address ?? '', maps_url: form.maps_url ?? '', walk_minutes: form.walk_minutes ?? null }}
+        onChange={(patch) => setForm({ ...form, ...patch })}
+        adminKey={adminKey}
+      />
       <input
         placeholder="Lien Google Maps (optionnel)"
         value={form.maps_url ?? ''}
@@ -560,6 +583,94 @@ function PlaceFields({
         onChange={(e) => setForm({ ...form, walk_minutes: e.target.value === '' ? null : Number(e.target.value) })}
         className="border border-border rounded-sm px-3 py-2 text-sm"
       />
+    </div>
+  );
+}
+
+function emergencyPlaceFromContent(contentMap: ContentMap, prefix: string): AddressValue & { name: string } {
+  const entry = contentMap.urgences ?? {};
+  const walk = entry[`${prefix}_walk_minutes`]?.fr;
+  return {
+    name: entry[`${prefix}_name`]?.fr ?? '',
+    address: entry[`${prefix}_address`]?.fr ?? '',
+    maps_url: entry[`${prefix}_maps_url`]?.fr ?? '',
+    walk_minutes: walk ? Number(walk) : null,
+  };
+}
+
+function EmergencyPlacesEditor({
+  contentMap,
+  adminKey,
+  flash,
+  onSaved,
+}: {
+  contentMap: ContentMap;
+  adminKey: string;
+  flash: (msg: string, error?: boolean) => void;
+  onSaved: (items: { section: string; key: string; lang: Lang; value: string }[]) => void;
+}) {
+  const [pharmacy, setPharmacy] = useState(() => emergencyPlaceFromContent(contentMap, 'pharmacy'));
+  const [hospital, setHospital] = useState(() => emergencyPlaceFromContent(contentMap, 'hospital'));
+  const [saving, setSaving] = useState(false);
+
+  const save = async () => {
+    setSaving(true);
+    const items: { section: string; key: string; lang: Lang; value: string }[] = [];
+    for (const [prefix, place] of [
+      ['pharmacy', pharmacy],
+      ['hospital', hospital],
+    ] as const) {
+      items.push({ section: 'urgences', key: `${prefix}_name`, lang: 'fr', value: place.name });
+      items.push({ section: 'urgences', key: `${prefix}_address`, lang: 'fr', value: place.address });
+      items.push({ section: 'urgences', key: `${prefix}_maps_url`, lang: 'fr', value: place.maps_url });
+      items.push({ section: 'urgences', key: `${prefix}_walk_minutes`, lang: 'fr', value: place.walk_minutes != null ? String(place.walk_minutes) : '' });
+    }
+    const res = await fetch('/api/content', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-admin-key': adminKey },
+      body: JSON.stringify({ items }),
+    });
+    setSaving(false);
+    if (res.ok) {
+      onSaved(items);
+      flash('Enregistré ✓');
+    } else {
+      flash(`Échec de l'enregistrement : ${await readError(res)}`, true);
+    }
+  };
+
+  const fieldsFor = (label: string, place: AddressValue & { name: string }, setPlace: (p: AddressValue & { name: string }) => void) => (
+    <div>
+      <h3 className="text-sm font-serif text-accent mb-3">{label}</h3>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <input
+          placeholder="Nom"
+          value={place.name}
+          onChange={(e) => setPlace({ ...place, name: e.target.value })}
+          className="border border-border rounded-sm px-3 py-2 text-sm col-span-1 sm:col-span-2"
+        />
+        <AddressSearch value={place} onChange={(patch) => setPlace({ ...place, ...patch })} adminKey={adminKey} />
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="bg-surface rounded-2xl border border-border p-4 sm:p-6 mb-6">
+      <h2 className="font-serif text-lg mb-4">Pharmacie & hôpital</h2>
+      <p className="text-xs text-ink-3 mb-4">
+        Recherchez une adresse pour remplir automatiquement le lien Google Maps et la distance à pied, comme dans les bons plans.
+      </p>
+      <div className="flex flex-col gap-6">
+        {fieldsFor('Pharmacie la plus proche', pharmacy, setPharmacy)}
+        <div className="pt-5 border-t border-border">{fieldsFor("Hôpital le plus proche", hospital, setHospital)}</div>
+      </div>
+      <button
+        onClick={save}
+        disabled={saving}
+        className="mt-5 px-5 py-2.5 bg-accent text-white rounded-sm text-sm font-medium hover:opacity-90 disabled:opacity-50"
+      >
+        {saving ? 'Enregistrement…' : 'Enregistrer'}
+      </button>
     </div>
   );
 }
