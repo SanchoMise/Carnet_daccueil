@@ -209,17 +209,53 @@ function imgFor(images: ImageRow[], section: string, fieldKey: string): ImageRow
 }
 
 function BlockImages({ images }: { images: ImageRow[] }) {
+  const [lightbox, setLightbox] = useState<ImageRow | null>(null);
+
   if (images.length === 0) return null;
   return (
-    <div className="flex flex-wrap gap-3 mt-3">
-      {images.map((img) => (
-        <figure key={img.id} className="w-40">
-          <div className="relative w-40 h-28 rounded-sm overflow-hidden bg-bg">
-            <Image src={img.url} alt={img.caption ?? ''} fill sizes="160px" className="object-cover" />
-          </div>
-          {img.caption && <figcaption className="text-xs text-ink-3 mt-1">{img.caption}</figcaption>}
-        </figure>
-      ))}
+    <>
+      <div className="flex flex-wrap gap-3 mt-3">
+        {images.map((img) => (
+          <figure key={img.id} className="w-40">
+            <button
+              type="button"
+              onClick={() => setLightbox(img)}
+              className="relative w-40 h-28 rounded-sm overflow-hidden bg-bg block cursor-zoom-in"
+            >
+              <Image src={img.url} alt={img.caption ?? ''} fill sizes="160px" className="object-cover" />
+            </button>
+            {img.caption && <figcaption className="text-xs text-ink-3 mt-1">{img.caption}</figcaption>}
+          </figure>
+        ))}
+      </div>
+      {lightbox && <ImageLightbox image={lightbox} onClose={() => setLightbox(null)} />}
+    </>
+  );
+}
+
+function ImageLightbox({ image, onClose }: { image: ImageRow; onClose: () => void }) {
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
+  return (
+    <div
+      onClick={onClose}
+      className="fixed inset-0 z-[100] flex flex-col items-center justify-center gap-3 bg-black/80 backdrop-blur-sm p-6"
+    >
+      <button
+        onClick={onClose}
+        aria-label="Fermer"
+        className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center text-xl transition-colors"
+      >
+        ×
+      </button>
+      <div className="relative w-full max-w-3xl max-h-[80vh] flex-1" onClick={(e) => e.stopPropagation()}>
+        <Image src={image.url} alt={image.caption ?? ''} fill sizes="90vw" className="object-contain" />
+      </div>
+      {image.caption && <p className="text-sm text-white/90 text-center max-w-xl">{image.caption}</p>}
     </div>
   );
 }
