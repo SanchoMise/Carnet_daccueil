@@ -208,6 +208,13 @@ function imgFor(images: ImageRow[], section: string, fieldKey: string): ImageRow
   return images.filter((img) => img.section === section && img.field_key === fieldKey);
 }
 
+/** Warms the browser's own HTTP cache with the raw (non-Next-optimized) file, so the
+ * lightbox — which renders that same raw URL — can show it instantly on click. */
+function prefetchImage(url: string) {
+  const img = new window.Image();
+  img.src = url;
+}
+
 function BlockImages({ images }: { images: ImageRow[] }) {
   const [lightbox, setLightbox] = useState<ImageRow | null>(null);
 
@@ -220,6 +227,8 @@ function BlockImages({ images }: { images: ImageRow[] }) {
             <button
               type="button"
               onClick={() => setLightbox(img)}
+              onMouseEnter={() => prefetchImage(img.url)}
+              onTouchStart={() => prefetchImage(img.url)}
               className="relative w-40 h-28 rounded-sm overflow-hidden bg-bg block cursor-zoom-in"
             >
               <Image src={img.url} alt={img.caption ?? ''} fill sizes="160px" className="object-cover" />
@@ -234,6 +243,8 @@ function BlockImages({ images }: { images: ImageRow[] }) {
 }
 
 function ImageLightbox({ image, onClose }: { image: ImageRow; onClose: () => void }) {
+  const [loaded, setLoaded] = useState(false);
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
     document.addEventListener('keydown', onKey);
@@ -252,9 +263,16 @@ function ImageLightbox({ image, onClose }: { image: ImageRow; onClose: () => voi
       >
         ×
       </button>
-      <div className="relative w-full max-w-3xl max-h-[80vh] flex-1" onClick={(e) => e.stopPropagation()}>
-        <Image src={image.url} alt={image.caption ?? ''} fill sizes="90vw" className="object-contain" />
-      </div>
+      {/* Plain <img> on the raw file (not Next's on-demand image optimizer) so a
+          prefetched/cached load renders immediately instead of waiting on a resize round-trip. */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={image.url}
+        alt={image.caption ?? ''}
+        onLoad={() => setLoaded(true)}
+        onClick={(e) => e.stopPropagation()}
+        className={`max-w-full max-h-[80vh] object-contain transition-opacity duration-150 ${loaded ? 'opacity-100' : 'opacity-0'}`}
+      />
       {image.caption && <p className="text-sm text-white/90 text-center max-w-xl">{image.caption}</p>}
     </div>
   );
