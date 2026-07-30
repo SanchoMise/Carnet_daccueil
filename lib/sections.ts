@@ -233,14 +233,25 @@ export function fieldLabel(sectionId: string, key: string): Record<Lang, string>
 }
 
 export const CHECKLIST_ITEMS: Record<Lang, string>[] = [
-  { fr: "Laisser les clés sur la table de l'entrée", en: 'Leave keys on the entrance table', es: 'Dejar las llaves en la mesa de la entrada' },
-  { fr: 'Éteindre toutes les lumières et ventilateurs', en: 'Turn off all lights and fans', es: 'Apagar todas las luces y ventiladores' },
-  { fr: 'Vider et nettoyer le réfrigérateur', en: 'Empty and clean the fridge', es: 'Vaciar y limpiar el frigorífico' },
   { fr: 'Vider les poubelles', en: 'Take out the bins', es: 'Sacar la basura' },
-  { fr: 'Faire la vaisselle', en: 'Do the washing-up', es: 'Fregar los platos' },
+  { fr: 'Faire la vaisselle et la ranger', en: 'Do the washing-up and put it away', es: 'Fregar los platos y guardarlos' },
   { fr: 'Réunir le linge (draps, serviettes, torchons) dans la salle de bain', en: 'Gather the linens (sheets, towels, tea towels) in the bathroom', es: 'Reunir la ropa (sábanas, toallas, paños) en el baño' },
-  { fr: 'Fermer les fenêtres et les volets (chambres et salon)', en: 'Close the windows and shutters (bedrooms and living room)', es: 'Cerrar las ventanas y las persianas (dormitorios y salón)' },
-  { fr: "Laisser un petit mot si quelque chose s'est passé", en: 'Leave a note if anything happened', es: 'Dejar una nota si algo ocurrió' },
+  {
+    fr: 'Fermer toutes les fenêtres, les volets des chambres jusqu\'en bas et le volet du salon à mi-hauteur',
+    en: 'Close all the windows, the bedroom shutters all the way down, and the living room shutter halfway',
+    es: 'Cerrar todas las ventanas, las persianas de los dormitorios hasta abajo y la persiana del salón a media altura',
+  },
+  { fr: 'Éteindre toutes les lumières et ventilateurs', en: 'Turn off all lights and fans', es: 'Apagar todas las luces y ventiladores' },
+  {
+    fr: "Mettre le trousseau de clés dans l'enveloppe présente dans la niche du meuble d'entrée et la déposer dans notre boîte aux lettres",
+    en: "Put the keys in the envelope in the entrance cabinet's niche and drop it in our mailbox",
+    es: 'Meter el llavero en el sobre que está en el nicho del mueble de la entrada y dejarlo en nuestro buzón',
+  },
+  {
+    fr: "N'hésitez pas à nous laisser un petit mot sur votre expérience (positive ou négative)",
+    en: 'Feel free to leave us a note about your experience (positive or negative)',
+    es: 'No dudes en dejarnos una nota sobre tu experiencia (positiva o negativa)',
+  },
 ];
 
 export const UI_LABELS = {
