@@ -6,7 +6,7 @@ import { Icon } from './icons';
 import { SECTIONS, CHECKLIST_ITEMS, UI_LABELS, fieldLabel, type SectionDef } from '@/lib/sections';
 import { ContentMap, ImageRow, Lang, LANGS, PlaceRow } from '@/lib/types';
 import { getValue } from '@/lib/contentValue';
-import { APARTMENT_COORDS } from '@/lib/geo';
+import { APARTMENT_COORDS, TRANSIT_STOPS, type TransitStop } from '@/lib/geo';
 
 function t(dict: Record<Lang, string>, lang: Lang) {
   return dict[lang];
@@ -579,19 +579,67 @@ function SimpleBody({ section, fieldKey, value, images }: { section: string; fie
   );
 }
 
+function TransitStopBadge({ stop, active, onClick }: { stop: TransitStop; active: boolean; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`flex items-center gap-2 pl-1 pr-3 py-1 rounded-full border text-sm transition-colors ${
+        active ? 'border-accent/40 bg-accent-light' : 'border-border bg-surface hover:border-accent/25 hover:bg-accent-light'
+      }`}
+    >
+      <span
+        className="w-6 h-6 rounded-full flex items-center justify-center text-[0.7rem] font-bold shrink-0"
+        style={{ backgroundColor: stop.color, color: stop.textColor }}
+      >
+        {stop.line}
+      </span>
+      <span className="text-ink-2">{stop.name}</span>
+    </button>
+  );
+}
+
 function TransportsBody({ value, images }: { value: string; images: ImageRow[] }) {
+  const [center, setCenter] = useState<{ lat: number; lon: number }>(APARTMENT_COORDS);
+  const metroStops = TRANSIT_STOPS.filter((s) => s.mode === 'metro');
+  const busStops = TRANSIT_STOPS.filter((s) => s.mode === 'bus');
+
   return (
     <>
       <Block>
-        <div className="rounded-sm overflow-hidden border border-border">
+        <div className="rounded-sm overflow-hidden border border-border mb-3">
           <iframe
             title="Métro, bus et vélib autour de l'appartement"
             width="100%"
             height="320"
             style={{ border: 0 }}
             loading="lazy"
-            src={`https://maps.google.com/maps?q=${APARTMENT_COORDS.lat},${APARTMENT_COORDS.lon}&z=17&output=embed`}
+            src={`https://maps.google.com/maps?q=${center.lat},${center.lon}&z=17&output=embed`}
           />
+        </div>
+        <div className="flex flex-col gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs font-bold uppercase tracking-wider text-ink-3 w-14 shrink-0">Métro</span>
+            {metroStops.map((stop, i) => (
+              <TransitStopBadge
+                key={`metro-${i}`}
+                stop={stop}
+                active={center.lat === stop.lat && center.lon === stop.lon}
+                onClick={() => setCenter({ lat: stop.lat, lon: stop.lon })}
+              />
+            ))}
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs font-bold uppercase tracking-wider text-ink-3 w-14 shrink-0">Bus</span>
+            {busStops.map((stop, i) => (
+              <TransitStopBadge
+                key={`bus-${i}`}
+                stop={stop}
+                active={center.lat === stop.lat && center.lon === stop.lon}
+                onClick={() => setCenter({ lat: stop.lat, lon: stop.lon })}
+              />
+            ))}
+          </div>
         </div>
       </Block>
       {value && (
