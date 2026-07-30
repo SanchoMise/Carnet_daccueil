@@ -9,11 +9,16 @@ import { estimateWalkMinutesFromApartment } from '@/lib/geo';
 type FieldValues = Record<string, Record<Lang, string>>;
 
 /**
- * Downscales/re-encodes large photos client-side before upload. Phone photos routinely land
- * at 4-8MB, past Vercel's fixed ~4.5MB request body limit (a 413 there, before our own file-size
- * check even runs) — shrinking here avoids that instead of trying to raise a platform limit we don't control.
+ * Downscales and re-encodes large photos client-side before upload, to WebP when the browser
+ * can actually produce it (falls back to JPEG otherwise — some browsers silently hand back PNG
+ * from canvas.toBlob() when asked for an unsupported type, so we check the returned blob's type
+ * rather than trusting the request). 1600px is plenty for how photos are ever displayed here — a
+ * lightbox capped at 768px CSS width, even at 2x retina — and phone photos routinely land at
+ * 4-8MB, past Vercel's fixed ~4.5MB request body limit (a 413 there, before our own file-size
+ * check even runs), so shrinking here avoids that instead of trying to raise a platform limit we
+ * don't control.
  */
-async function compressImage(file: File, maxDim = 2000, quality = 0.85): Promise<File> {
+async function compressImage(file: File, maxDim = 1600, quality = 0.82): Promise<File> {
   if (!file.type.startsWith('image/') || file.type === 'image/gif') return file;
   try {
     const bitmap = await createImageBitmap(file);
@@ -26,9 +31,20 @@ async function compressImage(file: File, maxDim = 2000, quality = 0.85): Promise
     const ctx = canvas.getContext('2d');
     if (!ctx) return file;
     ctx.drawImage(bitmap, 0, 0, width, height);
-    const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/jpeg', quality));
+
+    const encode = (type: string) => new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, type, quality));
+
+    let blob = await encode('image/webp');
+    let ext = 'webp';
+    let mime = 'image/webp';
+    if (!blob || blob.type !== 'image/webp') {
+      blob = await encode('image/jpeg');
+      ext = 'jpg';
+      mime = 'image/jpeg';
+    }
+
     if (!blob || blob.size >= file.size) return file;
-    return new File([blob], file.name.replace(/\.\w+$/, '.jpg'), { type: 'image/jpeg' });
+    return new File([blob], file.name.replace(/\.\w+$/, `.${ext}`), { type: mime });
   } catch {
     return file;
   }
