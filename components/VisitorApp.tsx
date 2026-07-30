@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { Icon } from './icons';
 import { SECTIONS, CHECKLIST_ITEMS, UI_LABELS, fieldLabel, type SectionDef } from '@/lib/sections';
@@ -33,6 +33,11 @@ export default function VisitorApp({
   const [openSection, setOpenSection] = useState<string | null>('arrivee');
   const [checked, setChecked] = useState<Set<number>>(new Set());
   const [wifiQrOpen, setWifiQrOpen] = useState(false);
+  const pillRefs = useRef<Record<string, HTMLAnchorElement | null>>({});
+
+  useEffect(() => {
+    if (openSection) pillRefs.current[openSection]?.scrollIntoView({ behavior: 'auto', inline: 'center', block: 'nearest' });
+  }, [openSection]);
 
   const openAndScrollTo = (id: string) => {
     setOpenSection(id);
@@ -100,12 +105,19 @@ export default function VisitorApp({
           {SECTIONS.map((s) => (
             <a
               key={s.id}
+              ref={(el) => {
+                pillRefs.current[s.id] = el;
+              }}
               href={`#${s.id}`}
               onClick={(e) => {
                 e.preventDefault();
                 openAndScrollTo(s.id);
               }}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-border bg-surface text-[0.82rem] text-ink-2 hover:bg-accent-light hover:border-accent/25 hover:text-accent transition-all no-underline whitespace-nowrap shrink-0"
+              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border text-[0.82rem] transition-all no-underline whitespace-nowrap shrink-0 ${
+                openSection === s.id
+                  ? 'bg-accent-light border-accent/25 text-accent'
+                  : 'border-border bg-surface text-ink-2 hover:bg-accent-light hover:border-accent/25 hover:text-accent'
+              }`}
             >
               <Icon name={s.icon} className="w-3.5 h-3.5 opacity-60 shrink-0" />
               {t(s.title, lang)}
@@ -119,7 +131,7 @@ export default function VisitorApp({
         {SECTIONS.map((s) => {
           const isOpen = openSection === s.id;
           return (
-            <div key={s.id} id={s.id} className="scroll-mt-20 bg-surface rounded-2xl border border-border overflow-hidden">
+            <div key={s.id} id={s.id} className="scroll-mt-[124px] sm:scroll-mt-20 bg-surface rounded-2xl border border-border overflow-hidden">
               <div
                 onClick={() => (isOpen ? setOpenSection(null) : openAndScrollTo(s.id))}
                 className="flex items-center gap-3.5 px-6 py-5 cursor-pointer select-none hover:bg-bg transition-colors"
