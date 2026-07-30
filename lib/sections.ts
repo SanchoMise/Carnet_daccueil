@@ -173,10 +173,10 @@ export const SECTIONS: SectionDef[] = [
   {
     id: 'laverie',
     icon: 'washer',
-    title: { fr: 'Machine à laver & WC', en: 'Washing machine & toilet', es: 'Lavadora & WC' },
+    title: { fr: 'Lave linge & WC', en: 'Washing machine & toilet', es: 'Lavadora & WC' },
     subtitle: { fr: 'Lave-linge, toilettes', en: 'Washer, toilet', es: 'Lavadora, aseo' },
     fields: [
-      { key: 'washer_note', translatable: true, type: 'textarea', label: { fr: 'Machine à laver', en: 'Washing machine', es: 'Lavadora' } },
+      { key: 'washer_note', translatable: true, type: 'textarea', label: { fr: 'Lave linge', en: 'Washing machine', es: 'Lavadora' } },
       { key: 'toilet_note', translatable: true, type: 'textarea', label: { fr: 'WC', en: 'Toilet', es: 'WC' } },
     ],
   },
