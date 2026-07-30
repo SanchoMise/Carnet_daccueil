@@ -141,6 +141,7 @@ export default function VisitorApp({
                   {s.id === 'wifi' && <WifiBody v={v} lang={lang} images={images} onShowQr={() => setWifiQrOpen(true)} />}
                   {s.id === 'entree' && <GenericBody section={s} v={v} lang={lang} images={images} />}
                   {s.id === 'salon' && <GenericBody section={s} v={v} lang={lang} images={images} />}
+                  {s.id === 'laverie' && <GenericBody section={s} v={v} lang={lang} images={images} />}
                   {s.id === 'canicule' && <GenericBody section={s} v={v} lang={lang} images={images} />}
                   {s.id === 'cuisine' && <CuisineBody v={v} lang={lang} images={images} />}
                   {(s.id === 'chambre-parentale' || s.id === 'chambre-filles') && (
@@ -461,6 +462,7 @@ function GenericBody({ section, v, lang, images }: { section: SectionDef; v: VFn
 function RoomBody({ sectionId, v, lang, images }: { sectionId: string; v: VFn; lang: Lang; images: ImageRow[] }) {
   const introNote = v(sectionId, 'intro_note', true);
   const voletNote = v(sectionId, 'volet_note', true);
+  const cabinBedNote = v(sectionId, 'cabin_bed_note', true);
   const lightsNote = v(sectionId, 'lights_note', true);
   const sonosNote = v(sectionId, 'sonos_note', true);
   const fanNote = v(sectionId, 'fan_note', true);
@@ -475,6 +477,11 @@ function RoomBody({ sectionId, v, lang, images }: { sectionId: string; v: VFn; l
       {voletNote && (
         <Block label={fieldLabel(sectionId, 'volet_note')?.[lang]} images={imgFor(images, sectionId, 'volet_note')}>
           <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line">{voletNote}</p>
+        </Block>
+      )}
+      {cabinBedNote && (
+        <Block label={fieldLabel(sectionId, 'cabin_bed_note')?.[lang]} images={imgFor(images, sectionId, 'cabin_bed_note')}>
+          <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line">{cabinBedNote}</p>
         </Block>
       )}
       {lightsNote && (

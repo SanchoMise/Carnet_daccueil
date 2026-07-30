@@ -93,13 +93,12 @@ export const SECTIONS: SectionDef[] = [
     ],
   },
   {
-    id: 'entree',
-    icon: 'entrance',
-    title: { fr: 'Entrée', en: 'Entryway', es: 'Entrada' },
-    subtitle: { fr: 'Porte, plafonnier', en: 'Door, ceiling light', es: 'Puerta, plafón' },
+    id: 'regles',
+    icon: 'rules',
+    title: { fr: 'Règles du logement', en: 'House rules', es: 'Normas del alojamiento' },
+    subtitle: { fr: 'Pour un séjour serein', en: 'For a peaceful stay', es: 'Para una estancia tranquila' },
     fields: [
-      { key: 'door_note', translatable: true, type: 'textarea', label: { fr: "Porte d'entrée", en: 'Front door', es: 'Puerta de entrada' } },
-      { key: 'ceiling_light_note', translatable: true, type: 'textarea', label: { fr: 'Plafonnier', en: 'Ceiling light', es: 'Plafón' } },
+      { key: 'rules_note', translatable: true, type: 'textarea', label: { fr: 'Règles', en: 'Rules', es: 'Normas' } },
     ],
   },
   {
@@ -111,6 +110,16 @@ export const SECTIONS: SectionDef[] = [
       { key: 'wifi_ssid', translatable: false, type: 'text', group: 'Connexion wifi', label: { fr: 'Nom du réseau (SSID)', en: 'Network name (SSID)', es: 'Nombre de la red (SSID)' } },
       { key: 'wifi_password', translatable: false, type: 'text', group: 'Connexion wifi', label: { fr: 'Mot de passe wifi', en: 'Wifi password', es: 'Contraseña wifi' } },
       { key: 'devices_note', translatable: true, type: 'textarea', group: 'Appareils', label: { fr: 'Appareils (TV, Sonos, lave-linge...)', en: 'Appliances (TV, Sonos, washer...)', es: 'Aparatos (TV, Sonos, lavadora...)' } },
+    ],
+  },
+  {
+    id: 'entree',
+    icon: 'entrance',
+    title: { fr: 'Entrée', en: 'Entryway', es: 'Entrada' },
+    subtitle: { fr: 'Porte, plafonnier', en: 'Door, ceiling light', es: 'Puerta, plafón' },
+    fields: [
+      { key: 'door_note', translatable: true, type: 'textarea', label: { fr: "Porte d'entrée", en: 'Front door', es: 'Puerta de entrada' } },
+      { key: 'ceiling_light_note', translatable: true, type: 'textarea', label: { fr: 'Plafonnier', en: 'Ceiling light', es: 'Plafón' } },
     ],
   },
   {
@@ -129,6 +138,15 @@ export const SECTIONS: SectionDef[] = [
     ],
   },
   {
+    id: 'salon',
+    icon: 'sofa',
+    title: { fr: 'Salon', en: 'Living room', es: 'Salón' },
+    subtitle: { fr: 'Équipements', en: 'Equipment', es: 'Equipamiento' },
+    fields: [
+      { key: 'salon_note', translatable: true, type: 'textarea', label: { fr: 'Salon', en: 'Living room', es: 'Salón' } },
+    ],
+  },
+  {
     id: 'chambre-parentale',
     icon: 'bed',
     title: { fr: 'Chambre parentale', en: 'Main bedroom', es: 'Habitación principal' },
@@ -144,20 +162,22 @@ export const SECTIONS: SectionDef[] = [
     id: 'chambre-filles',
     icon: 'bed',
     title: { fr: 'Chambre des filles', en: "Girls' bedroom", es: 'Habitación de las niñas' },
-    subtitle: { fr: 'Lumières, ventilateur', en: 'Lights, fan', es: 'Luces, ventilador' },
+    subtitle: { fr: 'Lit cabane, lumières, ventilateur', en: 'Cabin bed, lights, fan', es: 'Cama cabaña, luces, ventilador' },
     fields: [
       { key: 'intro_note', translatable: true, type: 'textarea', label: { fr: 'Introduction', en: 'Introduction', es: 'Introducción' } },
+      { key: 'cabin_bed_note', translatable: true, type: 'textarea', label: { fr: 'Lit cabane', en: 'Cabin bed', es: 'Cama cabaña' } },
       { key: 'lights_note', translatable: true, type: 'textarea', label: { fr: 'Lumières', en: 'Lights', es: 'Luces' } },
       { key: 'fan_note', translatable: true, type: 'textarea', label: { fr: 'Ventilateur de plafond', en: 'Ceiling fan', es: 'Ventilador de techo' } },
     ],
   },
   {
-    id: 'salon',
-    icon: 'sofa',
-    title: { fr: 'Salon', en: 'Living room', es: 'Salón' },
-    subtitle: { fr: 'Équipements', en: 'Equipment', es: 'Equipamiento' },
+    id: 'laverie',
+    icon: 'washer',
+    title: { fr: 'Machine à laver & WC', en: 'Washing machine & toilet', es: 'Lavadora & WC' },
+    subtitle: { fr: 'Lave-linge, toilettes', en: 'Washer, toilet', es: 'Lavadora, aseo' },
     fields: [
-      { key: 'salon_note', translatable: true, type: 'textarea', label: { fr: 'Salon', en: 'Living room', es: 'Salón' } },
+      { key: 'washer_note', translatable: true, type: 'textarea', label: { fr: 'Machine à laver', en: 'Washing machine', es: 'Lavadora' } },
+      { key: 'toilet_note', translatable: true, type: 'textarea', label: { fr: 'WC', en: 'Toilet', es: 'WC' } },
     ],
   },
   {
@@ -167,15 +187,6 @@ export const SECTIONS: SectionDef[] = [
     subtitle: { fr: 'Conseils & astuces', en: 'Tips & advice', es: 'Consejos' },
     fields: [
       { key: 'canicule_note', translatable: true, type: 'textarea', label: { fr: 'En cas de canicule', en: 'In case of heatwave', es: 'En caso de ola de calor' } },
-    ],
-  },
-  {
-    id: 'regles',
-    icon: 'rules',
-    title: { fr: 'Règles du logement', en: 'House rules', es: 'Normas del alojamiento' },
-    subtitle: { fr: 'Pour un séjour serein', en: 'For a peaceful stay', es: 'Para una estancia tranquila' },
-    fields: [
-      { key: 'rules_note', translatable: true, type: 'textarea', label: { fr: 'Règles', en: 'Rules', es: 'Normas' } },
     ],
   },
   {

@@ -92,6 +92,13 @@ const paths: Record<string, JSX.Element> = {
       <path d="M20 19v1" />
     </>
   ),
+  washer: (
+    <>
+      <rect x="3" y="3" width="18" height="18" rx="2" />
+      <circle cx="12" cy="13" r="5" />
+      <path d="M8 3.5h.01M12 3.5h.01" />
+    </>
+  ),
   sun: (
     <>
       <circle cx="12" cy="12" r="4.5" />
