@@ -99,9 +99,9 @@ export default function VisitorApp({
         <p className="text-[1.05rem] text-ink-2 max-w-[460px] leading-relaxed">{t(UI_LABELS.hero_sub, lang)}</p>
       </section>
 
-      {/* SECTION NAV PILLS — sticky single-line scroller on mobile, static wrapped row from sm up */}
-      <div className="sticky top-14 z-40 sm:static bg-bg/95 sm:bg-transparent backdrop-blur-md sm:backdrop-blur-none border-b sm:border-b-0 border-border">
-        <div className="max-w-[720px] mx-auto px-4 sm:px-8 py-2.5 sm:py-0 sm:pb-8 flex sm:flex-wrap flex-nowrap overflow-x-auto sm:overflow-visible gap-2">
+      {/* SECTION NAV PILLS — sticky single-line horizontal scroller */}
+      <div className="sticky top-14 z-40 bg-bg/95 backdrop-blur-md border-b border-border">
+        <div className="max-w-[720px] mx-auto px-4 sm:px-8 py-2.5 flex flex-nowrap overflow-x-auto gap-2">
           {SECTIONS.map((s) => (
             <a
               key={s.id}
@@ -131,7 +131,7 @@ export default function VisitorApp({
         {SECTIONS.map((s) => {
           const isOpen = openSection === s.id;
           return (
-            <div key={s.id} id={s.id} className="scroll-mt-[124px] sm:scroll-mt-20 bg-surface rounded-2xl border border-border overflow-hidden">
+            <div key={s.id} id={s.id} className="scroll-mt-[124px] bg-surface rounded-2xl border border-border overflow-hidden">
               <div
                 onClick={() => (isOpen ? setOpenSection(null) : openAndScrollTo(s.id))}
                 className="flex items-center gap-3.5 px-6 py-5 cursor-pointer select-none hover:bg-bg transition-colors"
@@ -659,7 +659,6 @@ function UrgencesBody({ v, lang, images }: { v: VFn; lang: Lang; images: ImageRo
   const hostPhone = v('urgences', 'host_phone', false);
   const contact2Name = v('urgences', 'contact2_name', false);
   const contact2Phone = v('urgences', 'contact2_phone', false);
-  const plumberPhone = v('urgences', 'plumber_phone', false);
   const electricalNote = v('urgences', 'electrical_note', true);
   const pharmacyName = v('urgences', 'pharmacy_name', false);
   const pharmacyAddress = v('urgences', 'pharmacy_address', false);
@@ -674,7 +673,6 @@ function UrgencesBody({ v, lang, images }: { v: VFn; lang: Lang; images: ImageRo
       ? [{ avatar: '👤', name: contact2Name || t(UI_LABELS.contact2_role, lang), role: t(UI_LABELS.contact2_role, lang), link: contact2Phone ? `tel:${contact2Phone}` : '#', label: contact2Phone || UI_LABELS.to_complete[lang] }]
       : []),
     { avatar: '🚨', name: t(UI_LABELS.emergency, lang), role: '15 · 17 · 18 · 112', link: 'tel:112', label: '112' },
-    { avatar: '🔧', name: t(UI_LABELS.plumber, lang), role: t(UI_LABELS.plumber_role, lang), link: plumberPhone ? `tel:${plumberPhone}` : '#', label: plumberPhone || UI_LABELS.to_complete[lang] },
     { avatar: '💊', name: t(UI_LABELS.pharmacy, lang), role: pharmacyName || pharmacyAddress || UI_LABELS.to_complete[lang], link: pharmacyMapsUrl || '#', label: pharmacyMapsUrl ? 'Google Maps' : UI_LABELS.to_complete[lang] },
     { avatar: '🏥', name: t(UI_LABELS.hospital, lang), role: hospitalName || hospitalAddress || UI_LABELS.to_complete[lang], link: hospitalMapsUrl || '#', label: hospitalMapsUrl ? 'Google Maps' : UI_LABELS.to_complete[lang] },
   ];
