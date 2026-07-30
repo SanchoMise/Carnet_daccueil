@@ -94,22 +94,24 @@ export default function VisitorApp({
         <p className="text-[1.05rem] text-ink-2 max-w-[460px] leading-relaxed">{t(UI_LABELS.hero_sub, lang)}</p>
       </section>
 
-      {/* SECTION NAV PILLS */}
-      <div className="max-w-[720px] mx-auto px-4 sm:px-8 pb-8 flex flex-wrap gap-2">
-        {SECTIONS.map((s) => (
-          <a
-            key={s.id}
-            href={`#${s.id}`}
-            onClick={(e) => {
-              e.preventDefault();
-              openAndScrollTo(s.id);
-            }}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-border bg-surface text-[0.82rem] text-ink-2 hover:bg-accent-light hover:border-accent/25 hover:text-accent transition-all no-underline"
-          >
-            <Icon name={s.icon} className="w-3.5 h-3.5 opacity-60 shrink-0" />
-            {t(s.title, lang)}
-          </a>
-        ))}
+      {/* SECTION NAV PILLS — sticky single-line scroller on mobile, static wrapped row from sm up */}
+      <div className="sticky top-14 z-40 sm:static bg-bg/95 sm:bg-transparent backdrop-blur-md sm:backdrop-blur-none border-b sm:border-b-0 border-border">
+        <div className="max-w-[720px] mx-auto px-4 sm:px-8 py-2.5 sm:py-0 sm:pb-8 flex sm:flex-wrap flex-nowrap overflow-x-auto sm:overflow-visible gap-2">
+          {SECTIONS.map((s) => (
+            <a
+              key={s.id}
+              href={`#${s.id}`}
+              onClick={(e) => {
+                e.preventDefault();
+                openAndScrollTo(s.id);
+              }}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-border bg-surface text-[0.82rem] text-ink-2 hover:bg-accent-light hover:border-accent/25 hover:text-accent transition-all no-underline whitespace-nowrap shrink-0"
+            >
+              <Icon name={s.icon} className="w-3.5 h-3.5 opacity-60 shrink-0" />
+              {t(s.title, lang)}
+            </a>
+          ))}
+        </div>
       </div>
 
       {/* MAIN */}
