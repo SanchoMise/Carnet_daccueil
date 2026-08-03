@@ -353,7 +353,7 @@ function ArriveeBody({ v, lang, images }: { v: VFn; lang: Lang; images: ImageRow
         <HighlightBox icon="home" body={apartmentNote || UI_LABELS.to_complete[lang]} />
       </Block>
       <Block>
-        <div className="grid grid-cols-2 gap-2.5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
           <div className="bg-bg rounded-sm p-4 flex flex-col gap-1">
             <div className="text-xs uppercase tracking-wider text-ink-3 font-medium">{t(UI_LABELS.checkin, lang)}</div>
             <div className="text-base font-medium text-ink">{checkinTime || '—'}</div>
