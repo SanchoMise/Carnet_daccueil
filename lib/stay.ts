@@ -25,10 +25,13 @@ function parisNow() {
   return { date: `${g('year')}-${g('month')}-${g('day')}`, hour: Number(g('hour')) };
 }
 
-/** Explicit ?s=a|b|c wins; otherwise the stay covering today (Paris time). On a changeover day, before 14h the departing guests, after the arriving ones. */
+/** Explicit ?s=<link_code> wins; otherwise the stay covering today (Paris time). On a changeover day, before 14h the departing guests, after the arriving ones. */
 export function pickStay(map: ContentMap, param?: string): string | null {
   if (param) {
-    const id = STAY_SLOTS.find((s) => s === `sejour-${param.toLowerCase()}`);
+    const id = STAY_SLOTS.find((s) => {
+      const code = first(map, s, 'link_code');
+      return code && code === param;
+    });
     if (id) return id;
   }
   const { date, hour } = parisNow();

@@ -230,10 +230,11 @@ export const SECTIONS: SectionDef[] = [
   },
 ];
 
-/** Reusable per-stay slots. Link: /?s=<slot id letter>, or automatic by date from the fridge QR. */
+/** Reusable per-stay slots. Link: /?s=<link_code>, or automatic by date from the fridge QR. */
 export const STAY_SLOTS = ['sejour-a', 'sejour-b', 'sejour-c'] as const;
 
 export const STAY_FIELDS: FieldDef[] = [
+  { key: 'link_code', translatable: false, type: 'text', label: { fr: 'Code du lien (lien : …/?s=CODE)', en: 'Link code', es: 'Código del enlace' } },
   { key: 'guests', translatable: false, type: 'text', label: { fr: 'Prénoms des invités (ex. Marie et Paul)', en: 'Guests', es: 'Invitados' } },
   { key: 'arrival_date', translatable: false, type: 'text', label: { fr: "Date d'arrivée (AAAA-MM-JJ)", en: 'Arrival date', es: 'Llegada' } },
   { key: 'departure_date', translatable: false, type: 'text', label: { fr: 'Date de départ (AAAA-MM-JJ)', en: 'Departure date', es: 'Salida' } },
