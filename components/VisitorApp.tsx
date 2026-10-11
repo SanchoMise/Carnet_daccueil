@@ -7,6 +7,7 @@ import { SECTIONS, CHECKLIST_ITEMS, UI_LABELS, fieldLabel, type SectionDef } fro
 import { ContentMap, ImageRow, Lang, LANGS, PlaceRow } from '@/lib/types';
 import { getValue } from '@/lib/contentValue';
 import { APARTMENT_COORDS, TRANSIT_STOPS, type TransitStop } from '@/lib/geo';
+import type { ActiveStay } from '@/lib/stay';
 
 function t(dict: Record<Lang, string>, lang: Lang) {
   return dict[lang];
@@ -24,10 +25,12 @@ export default function VisitorApp({
   contentMap,
   places,
   images,
+  stay,
 }: {
   contentMap: ContentMap;
   places: PlaceRow[];
   images: ImageRow[];
+  stay: ActiveStay | null;
 }) {
   const [lang, setLang] = useState<Lang>('fr');
   const [openSection, setOpenSection] = useState<string | null>('arrivee');
@@ -97,12 +100,20 @@ export default function VisitorApp({
           <em className="not-italic italic text-accent">{t(UI_LABELS.hero_title_2, lang)}</em>
         </h1>
         <p className="text-[1.05rem] text-ink-2 max-w-[460px] leading-relaxed">{t(UI_LABELS.hero_sub, lang)}</p>
+        {stay?.guests && (
+          <p className="font-serif text-xl text-accent mt-5">
+            {{ fr: 'Bienvenue', en: 'Welcome', es: 'Bienvenidos' }[lang]} {stay.guests} !
+          </p>
+        )}
+        {stay?.welcome?.[lang] && (
+          <p className="text-[0.95rem] text-ink-2 max-w-[460px] leading-relaxed whitespace-pre-line mt-2">{stay.welcome[lang]}</p>
+        )}
       </section>
 
       {/* SECTION NAV PILLS — sticky single-line horizontal scroller */}
       <div className="sticky top-14 z-40 bg-bg/95 backdrop-blur-md border-b border-border">
         <div className="max-w-[720px] mx-auto px-4 sm:px-8 py-2.5 flex flex-nowrap overflow-x-auto gap-2">
-          {SECTIONS.map((s) => (
+          {SECTIONS.filter((s) => !s.hidden).map((s) => (
             <a
               key={s.id}
               ref={(el) => {
@@ -128,7 +139,7 @@ export default function VisitorApp({
 
       {/* MAIN */}
       <main className="max-w-[720px] mx-auto px-4 sm:px-8 pb-24 flex flex-col gap-0.5">
-        {SECTIONS.map((s) => {
+        {SECTIONS.filter((s) => !s.hidden).map((s) => {
           const isOpen = openSection === s.id;
           return (
             <div key={s.id} id={s.id} className="scroll-mt-[124px] bg-surface rounded-2xl border border-border overflow-hidden">

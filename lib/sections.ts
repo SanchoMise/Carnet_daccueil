@@ -18,6 +18,8 @@ export type SectionDef = {
   title: Record<Lang, string>;
   subtitle: Record<Lang, string>;
   fields: FieldDef[];
+  /** Admin-only section (not shown to visitors) — used for per-stay personalization. */
+  hidden?: boolean;
 };
 
 export const SECTIONS: SectionDef[] = [
@@ -227,6 +229,32 @@ export const SECTIONS: SectionDef[] = [
     ],
   },
 ];
+
+/** Reusable per-stay slots. Link: /?s=<slot id letter>, or automatic by date from the fridge QR. */
+export const STAY_SLOTS = ['sejour-a', 'sejour-b', 'sejour-c'] as const;
+
+export const STAY_FIELDS: FieldDef[] = [
+  { key: 'guests', translatable: false, type: 'text', label: { fr: 'Prénoms des invités (ex. Marie et Paul)', en: 'Guests', es: 'Invitados' } },
+  { key: 'arrival_date', translatable: false, type: 'text', label: { fr: "Date d'arrivée (AAAA-MM-JJ)", en: 'Arrival date', es: 'Llegada' } },
+  { key: 'departure_date', translatable: false, type: 'text', label: { fr: 'Date de départ (AAAA-MM-JJ)', en: 'Departure date', es: 'Salida' } },
+  { key: 'welcome_note', translatable: true, type: 'textarea', label: { fr: "Mot d'accueil personnalisé (facultatif)", en: 'Welcome note', es: 'Nota de bienvenida' } },
+  { key: 'checkin_time', translatable: false, type: 'text', label: { fr: "Heure d'arrivée (remplace la rubrique Arrivée)", en: 'Check-in time', es: 'Hora de llegada' } },
+  { key: 'checkin_note', translatable: true, type: 'textarea', label: { fr: "Consigne d'arrivée (remplace)", en: 'Check-in note', es: 'Nota de llegada' } },
+  { key: 'checkout_time', translatable: false, type: 'text', label: { fr: 'Heure de départ (remplace)', en: 'Check-out time', es: 'Hora de salida' } },
+  { key: 'checkout_note', translatable: true, type: 'textarea', label: { fr: 'Consigne de départ (remplace)', en: 'Check-out note', es: 'Nota de salida' } },
+  { key: 'cleaning_note', translatable: true, type: 'textarea', label: { fr: 'Ménage (remplace la note ménage)', en: 'Cleaning', es: 'Limpieza' } },
+];
+
+SECTIONS.push(
+  ...STAY_SLOTS.map((id, i): SectionDef => ({
+    id,
+    icon: 'home',
+    hidden: true,
+    title: { fr: `Séjour ${'ABC'[i]} (lien personnalisé)`, en: `Stay ${'ABC'[i]}`, es: `Estancia ${'ABC'[i]}` },
+    subtitle: { fr: '', en: '', es: '' },
+    fields: STAY_FIELDS,
+  }))
+);
 
 export function fieldLabel(sectionId: string, key: string): Record<Lang, string> | undefined {
   return SECTIONS.find((s) => s.id === sectionId)?.fields.find((f) => f.key === key)?.label;
