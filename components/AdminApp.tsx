@@ -337,6 +337,18 @@ function ContentForm({
                       rows={2}
                       className="w-full border border-border rounded-sm px-3 py-2 text-sm"
                     />
+                  ) : f.type === 'select' ? (
+                    <select
+                      value={values[f.key].fr || f.options?.[0]?.value}
+                      onChange={(e) => setVal(f.key, 'fr', e.target.value)}
+                      className="w-full border border-border rounded-sm px-3 py-2 text-sm bg-surface"
+                    >
+                      {f.options?.map((o) => (
+                        <option key={o.value} value={o.value}>
+                          {o.label}
+                        </option>
+                      ))}
+                    </select>
                   ) : (
                     <input
                       type={f.type === 'date' ? 'date' : 'text'}

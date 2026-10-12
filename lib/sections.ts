@@ -5,7 +5,9 @@ export type FieldDef = {
   /** true: one value per language. false: single value, reused across languages (codes, times, phone numbers...). */
   translatable: boolean;
   label: Record<Lang, string>;
-  type?: 'text' | 'textarea' | 'date';
+  type?: 'text' | 'textarea' | 'date' | 'select';
+  /** For type 'select'. */
+  options?: { value: string; label: string }[];
   /** Admin-only (French) subheading clustering related fields — mirrors how they're grouped on the visitor page. */
   group?: string;
   /** Admin-only (French) one-line hint clarifying what this field controls on the visitor page. */
@@ -223,6 +225,16 @@ export const SECTIONS: SectionDef[] = [
     ],
   },
   {
+    id: 'menage',
+    icon: 'home',
+    title: { fr: 'Ménage avant le départ', en: 'Cleaning before you leave', es: 'Limpieza antes de la salida' },
+    subtitle: { fr: 'Ce qu\'on vous demande avant de partir', en: 'What we ask before you leave', es: 'Lo que le pedimos antes de irse' },
+    fields: [
+      { key: 'text_standard', translatable: true, type: 'textarea', label: { fr: 'Texte « sans option ménage »', en: 'Text without cleaning option', es: 'Texto sin opción de limpieza' } },
+      { key: 'text_option', translatable: true, type: 'textarea', label: { fr: 'Texte « avec option ménage »', en: 'Text with cleaning option', es: 'Texto con opción de limpieza' } },
+    ],
+  },
+  {
     id: 'checklist',
     icon: 'check',
     title: { fr: 'Checklist départ', en: 'Departure checklist', es: 'Lista de salida' },
@@ -246,7 +258,8 @@ export const STAY_FIELDS: FieldDef[] = [
   { key: 'checkin_note', translatable: true, type: 'textarea', label: { fr: "Consigne d'arrivée (remplace)", en: 'Check-in note', es: 'Nota de llegada' } },
   { key: 'checkout_time', translatable: false, type: 'text', label: { fr: 'Heure de départ (remplace)', en: 'Check-out time', es: 'Hora de salida' } },
   { key: 'checkout_note', translatable: true, type: 'textarea', label: { fr: 'Consigne de départ (remplace)', en: 'Check-out note', es: 'Nota de salida' } },
-  { key: 'cleaning_note', translatable: true, type: 'textarea', label: { fr: 'Ménage (remplace la note ménage)', en: 'Cleaning', es: 'Limpieza' } },
+  { key: 'cleaning_mode', translatable: false, type: 'select', options: [{ value: 'sans', label: 'Sans option ménage (ils font le ménage)' }, { value: 'avec', label: 'Avec option ménage (ménage fait par nos soins)' }], label: { fr: 'Ménage avant le départ', en: 'Cleaning mode', es: 'Modo de limpieza' } },
+  { key: 'cleaning_extra', translatable: true, type: 'textarea', label: { fr: 'Note ménage pour ce séjour (facultatif)', en: 'Cleaning note', es: 'Nota de limpieza' } },
 ];
 
 SECTIONS.push(

@@ -9,7 +9,8 @@ const OVERRIDES: Record<string, [string, string]> = {
   checkin_note: ['arrivee', 'checkin_note'],
   checkout_time: ['arrivee', 'checkout_time'],
   checkout_note: ['arrivee', 'checkout_note'],
-  cleaning_note: ['checklist', 'cleaning_note'],
+  cleaning_mode: ['menage', 'mode'],
+  cleaning_extra: ['menage', 'extra'],
 };
 
 const first = (map: ContentMap, section: string, key: string) => {
@@ -53,7 +54,7 @@ export function applyStay(map: ContentMap, id: string | null): { map: ContentMap
     next[sec] = { ...next[sec], [key]: { ...(next[sec]?.[key] ?? { fr: '', en: '', es: '' }), ...e } as Record<Lang, string> };
     // non-translatable values are stored under fr only: expose them for every language
     const v = e.fr || e.en || e.es;
-    if (['checkin_time', 'checkout_time'].includes(k)) next[sec][key] = Object.fromEntries(LANGS.map((l) => [l, v])) as Record<Lang, string>;
+    if (['checkin_time', 'checkout_time', 'cleaning_mode'].includes(k)) next[sec][key] = Object.fromEntries(LANGS.map((l) => [l, v])) as Record<Lang, string>;
   }
   const guests = first(map, id, 'guests');
   const welcome = map[id].welcome_note;

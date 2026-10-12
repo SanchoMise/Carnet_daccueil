@@ -185,6 +185,7 @@ export default function VisitorApp({
                   )}
                   {s.id === 'bons-plans' && <BonsPlansBody places={places} lang={lang} />}
                   {s.id === 'urgences' && <UrgencesBody v={v} lang={lang} images={images} />}
+                  {s.id === 'menage' && <MenageBody v={v} lang={lang} />}
                   {s.id === 'checklist' && <ChecklistBody v={v} lang={lang} checked={checked} onToggle={toggleCheck} />}
                 </div>
               )}
@@ -807,6 +808,22 @@ function UrgencesBody({ v, lang, images }: { v: VFn; lang: Lang; images: ImageRo
           <BlockImages images={imgFor(images, 'urgences', 'electrical_note')} />
         </div>
       )}
+    </div>
+  );
+}
+
+function MenageBody({ v, lang }: { v: VFn; lang: Lang }) {
+  const withOption = v('menage', 'mode', false) === 'avec';
+  const text = withOption ? v('menage', 'text_option', true) : v('menage', 'text_standard', true);
+  const extra = v('menage', 'extra', true);
+  return (
+    <div className="pt-2 flex flex-col gap-3">
+      {text ? (
+        <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line"><Rich text={text} /></p>
+      ) : (
+        <p className="text-sm text-ink-3">{UI_LABELS.to_complete[lang]}</p>
+      )}
+      {extra && <HighlightBox icon="home" body={extra} />}
     </div>
   );
 }
