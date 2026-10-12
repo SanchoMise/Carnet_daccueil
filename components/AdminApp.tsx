@@ -331,10 +331,9 @@ function ContentForm({
                   </label>
                   {f.hint && <p className="text-xs text-ink-3/80 mb-1.5">{f.hint}</p>}
                   {f.type === 'textarea' ? (
-                    <textarea
+                    <AutoTextarea
                       value={values[f.key].fr}
-                      onChange={(e) => setVal(f.key, 'fr', e.target.value)}
-                      rows={2}
+                      onChange={(v) => setVal(f.key, 'fr', v)}
                       className="w-full border border-border rounded-sm px-3 py-2 text-sm"
                     />
                   ) : f.type === 'select' ? (
@@ -1025,5 +1024,30 @@ function SectionSwitch({ enabled, onToggle }: { enabled: boolean; onToggle: (on:
         />
       </button>
     </div>
+  );
+}
+
+/** Textarea that grows with its content instead of scrolling. */
+function AutoTextarea({ value, onChange, className }: { value: string; onChange: (v: string) => void; className?: string }) {
+  const ref = useRef<HTMLTextAreaElement>(null);
+  const fit = () => {
+    const el = ref.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${el.scrollHeight + 2}px`;
+  };
+  useEffect(fit, [value]);
+  useEffect(() => {
+    window.addEventListener('resize', fit);
+    return () => window.removeEventListener('resize', fit);
+  }, []);
+  return (
+    <textarea
+      ref={ref}
+      value={value}
+      rows={2}
+      onChange={(e) => onChange(e.target.value)}
+      className={`${className ?? ''} resize-none overflow-hidden`}
+    />
   );
 }
