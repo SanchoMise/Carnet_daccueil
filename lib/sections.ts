@@ -225,6 +225,15 @@ export const SECTIONS: SectionDef[] = [
     ],
   },
   {
+    id: 'menage-sejour',
+    icon: 'home',
+    title: { fr: 'Ménage pendant le séjour', en: 'Cleaning during your stay', es: 'Limpieza durante la estancia' },
+    subtitle: { fr: 'Aspirateur, serpillère, robot', en: 'Vacuum, mop, robot', es: 'Aspiradora, fregona, robot' },
+    fields: [
+      { key: 'stay_cleaning_note', translatable: true, type: 'textarea', label: { fr: 'Ménage pendant le séjour', en: 'Cleaning during your stay', es: 'Limpieza durante la estancia' } },
+    ],
+  },
+  {
     id: 'menage',
     icon: 'home',
     title: { fr: 'Ménage avant le départ', en: 'Cleaning before you leave', es: 'Limpieza antes de la salida' },
@@ -239,9 +248,7 @@ export const SECTIONS: SectionDef[] = [
     icon: 'check',
     title: { fr: 'Checklist départ', en: 'Departure checklist', es: 'Lista de salida' },
     subtitle: { fr: 'Avant de rendre les clés', en: 'Before handing back the keys', es: 'Antes de devolver las llaves' },
-    fields: [
-      { key: 'cleaning_note', translatable: true, type: 'textarea', label: { fr: 'Ménage en cours de séjour', en: 'Cleaning during your stay', es: 'Limpieza durante la estancia' } },
-    ],
+    fields: [],
   },
 ];
 

@@ -185,6 +185,7 @@ export default function VisitorApp({
                   )}
                   {s.id === 'bons-plans' && <BonsPlansBody places={places} lang={lang} />}
                   {s.id === 'urgences' && <UrgencesBody v={v} lang={lang} images={images} />}
+                  {s.id === 'menage-sejour' && <MenageSejourBody v={v} lang={lang} />}
                   {s.id === 'menage' && <MenageBody v={v} lang={lang} />}
                   {s.id === 'checklist' && <ChecklistBody v={v} lang={lang} checked={checked} onToggle={toggleCheck} />}
                 </div>
@@ -812,6 +813,19 @@ function UrgencesBody({ v, lang, images }: { v: VFn; lang: Lang; images: ImageRo
   );
 }
 
+function MenageSejourBody({ v, lang }: { v: VFn; lang: Lang }) {
+  const note = v('menage-sejour', 'stay_cleaning_note', true);
+  return (
+    <div className="pt-2">
+      {note ? (
+        <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line"><Rich text={note} /></p>
+      ) : (
+        <p className="text-sm text-ink-3">{UI_LABELS.to_complete[lang]}</p>
+      )}
+    </div>
+  );
+}
+
 function MenageBody({ v, lang }: { v: VFn; lang: Lang }) {
   const withOption = v('menage', 'mode', false) === 'avec';
   const text = withOption ? v('menage', 'text_option', true) : v('menage', 'text_standard', true);
@@ -829,12 +843,8 @@ function MenageBody({ v, lang }: { v: VFn; lang: Lang }) {
 }
 
 function ChecklistBody({ v, lang, checked, onToggle }: { v: VFn; lang: Lang; checked: Set<number>; onToggle: (i: number) => void }) {
-  const cleaningNote = v('checklist', 'cleaning_note', true);
   return (
     <>
-      {cleaningNote && (
-        <p className="text-sm text-ink-2 leading-relaxed whitespace-pre-line pt-2 pb-1"><Rich text={cleaningNote} /></p>
-      )}
       <ul className="flex flex-col gap-2 pt-2">
       {CHECKLIST_ITEMS.map((item, i) => {
         const done = checked.has(i);
