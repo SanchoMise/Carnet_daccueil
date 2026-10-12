@@ -131,7 +131,7 @@ export default function AdminApp({ adminKey }: { adminKey: string }) {
                 activeSection === s.id ? 'bg-accent-light text-accent font-medium' : 'text-ink-2 hover:bg-bg'
               }`}
             >
-              {s.title.fr}
+              {s.hidden && contentMap[s.id]?.guests?.fr ? `Séjour de ${contentMap[s.id].guests.fr}` : s.title.fr}
             </button>
           ))}
         </nav>

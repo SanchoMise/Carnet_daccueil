@@ -95,16 +95,21 @@ export default function VisitorApp({
           {t(UI_LABELS.hero_eyebrow, lang)}
         </div>
         <h1 className="font-serif text-[clamp(2.2rem,6vw,3.6rem)] leading-[1.1] tracking-tight text-ink mb-4">
-          {t(UI_LABELS.hero_title_1, lang)}
-          <br />
-          <em className="not-italic italic text-accent">{t(UI_LABELS.hero_title_2, lang)}</em>
+          {stay?.guests ? (
+            <>
+              {t(UI_LABELS.hero_title_1, lang)} {t(UI_LABELS.hero_title_2, lang).replace(/\.$/, '')},
+              <br />
+              <em className="not-italic italic text-accent">{stay.guests}.</em>
+            </>
+          ) : (
+            <>
+              {t(UI_LABELS.hero_title_1, lang)}
+              <br />
+              <em className="not-italic italic text-accent">{t(UI_LABELS.hero_title_2, lang)}</em>
+            </>
+          )}
         </h1>
         <p className="text-[1.05rem] text-ink-2 max-w-[460px] leading-relaxed">{t(UI_LABELS.hero_sub, lang)}</p>
-        {stay?.guests && (
-          <p className="font-serif text-xl text-accent mt-5">
-            {{ fr: 'Bienvenue', en: 'Welcome', es: 'Bienvenidos' }[lang]} {stay.guests} !
-          </p>
-        )}
         {stay?.welcome?.[lang] && (
           <p className="text-[0.95rem] text-ink-2 max-w-[460px] leading-relaxed whitespace-pre-line mt-2">{stay.welcome[lang]}</p>
         )}
