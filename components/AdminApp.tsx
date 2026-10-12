@@ -312,6 +312,7 @@ function ContentForm({
                     />
                   ) : (
                     <input
+                      type={f.type === 'date' ? 'date' : 'text'}
                       value={values[f.key].fr}
                       onChange={(e) => setVal(f.key, 'fr', e.target.value)}
                       className="w-full border border-border rounded-sm px-3 py-2 text-sm"

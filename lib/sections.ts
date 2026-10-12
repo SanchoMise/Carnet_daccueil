@@ -5,7 +5,7 @@ export type FieldDef = {
   /** true: one value per language. false: single value, reused across languages (codes, times, phone numbers...). */
   translatable: boolean;
   label: Record<Lang, string>;
-  type?: 'text' | 'textarea';
+  type?: 'text' | 'textarea' | 'date';
   /** Admin-only (French) subheading clustering related fields — mirrors how they're grouped on the visitor page. */
   group?: string;
   /** Admin-only (French) one-line hint clarifying what this field controls on the visitor page. */
@@ -236,8 +236,8 @@ export const STAY_SLOTS = ['sejour-a', 'sejour-b', 'sejour-c'] as const;
 export const STAY_FIELDS: FieldDef[] = [
   { key: 'link_code', translatable: false, type: 'text', label: { fr: 'Code du lien (lien : …/?s=CODE)', en: 'Link code', es: 'Código del enlace' } },
   { key: 'guests', translatable: false, type: 'text', label: { fr: 'Prénoms des invités (ex. Marie et Paul)', en: 'Guests', es: 'Invitados' } },
-  { key: 'arrival_date', translatable: false, type: 'text', label: { fr: "Date d'arrivée (AAAA-MM-JJ)", en: 'Arrival date', es: 'Llegada' } },
-  { key: 'departure_date', translatable: false, type: 'text', label: { fr: 'Date de départ (AAAA-MM-JJ)', en: 'Departure date', es: 'Salida' } },
+  { key: 'arrival_date', translatable: false, type: 'date', label: { fr: "Date d'arrivée", en: 'Arrival date', es: 'Llegada' } },
+  { key: 'departure_date', translatable: false, type: 'date', label: { fr: 'Date de départ', en: 'Departure date', es: 'Salida' } },
   { key: 'welcome_note', translatable: true, type: 'textarea', label: { fr: "Mot d'accueil personnalisé (facultatif)", en: 'Welcome note', es: 'Nota de bienvenida' } },
   { key: 'checkin_time', translatable: false, type: 'text', label: { fr: "Heure d'arrivée (remplace la rubrique Arrivée)", en: 'Check-in time', es: 'Hora de llegada' } },
   { key: 'checkin_note', translatable: true, type: 'textarea', label: { fr: "Consigne d'arrivée (remplace)", en: 'Check-in note', es: 'Nota de llegada' } },
