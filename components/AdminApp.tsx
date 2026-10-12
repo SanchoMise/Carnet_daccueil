@@ -137,6 +137,33 @@ export default function AdminApp({ adminKey }: { adminKey: string }) {
         </nav>
 
         <main className="flex-1 p-4 sm:p-6 max-w-3xl">
+          {section.toggleable && (
+            <SectionSwitch
+              key={`switch-${section.id}`}
+              enabled={contentMap[section.id]?.enabled?.fr !== '0'}
+              onToggle={async (on) => {
+                const item = { section: section.id, key: 'enabled', lang: 'fr' as Lang, value: on ? '1' : '0' };
+                const res = await fetch('/api/content', {
+                  method: 'POST',
+                  headers,
+                  body: JSON.stringify({ items: [item] }),
+                });
+                if (!res.ok) {
+                  flash(`Échec de l'enregistrement : ${await readError(res)}`, true);
+                  return;
+                }
+                setContentMap((prev) => ({
+                  ...prev,
+                  [section.id]: {
+                    ...prev[section.id],
+                    enabled: { fr: item.value, en: item.value, es: item.value } as Record<Lang, string>,
+                  },
+                }));
+                flash(on ? 'Rubrique affichée ✓' : 'Rubrique masquée ✓');
+              }}
+            />
+          )}
+
           {section.fields.length > 0 && (
             <ContentForm
               key={`content-${section.id}`}
@@ -962,5 +989,29 @@ function CopyLink({ url }: { url: string }) {
     >
       {copied ? 'Lien copié ✓' : `📋 ${url}`}
     </button>
+  );
+}
+
+function SectionSwitch({ enabled, onToggle }: { enabled: boolean; onToggle: (on: boolean) => void }) {
+  return (
+    <div className="flex items-center justify-between gap-4 bg-surface border border-border rounded-md px-4 py-3 mb-4">
+      <div>
+        <div className="text-sm font-medium">{enabled ? 'Rubrique affichée aux visiteurs' : 'Rubrique masquée'}</div>
+        <div className="text-xs text-ink-3">Activez-la uniquement en période de canicule.</div>
+      </div>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={enabled}
+        onClick={() => onToggle(!enabled)}
+        className={`relative w-11 h-6 rounded-full shrink-0 transition-colors ${enabled ? 'bg-accent' : 'bg-border'}`}
+      >
+        <span
+          className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${
+            enabled ? 'translate-x-5' : ''
+          }`}
+        />
+      </button>
+    </div>
   );
 }

@@ -20,6 +20,8 @@ export type SectionDef = {
   fields: FieldDef[];
   /** Admin-only section (not shown to visitors) — used for per-stay personalization. */
   hidden?: boolean;
+  /** Admin can switch the section on/off for visitors (content row `enabled` = '0' hides it). */
+  toggleable?: boolean;
 };
 
 export const SECTIONS: SectionDef[] = [
@@ -185,6 +187,7 @@ export const SECTIONS: SectionDef[] = [
   {
     id: 'canicule',
     icon: 'sun',
+    toggleable: true,
     title: { fr: 'En cas de canicule', en: 'In case of heatwave', es: 'En caso de ola de calor' },
     subtitle: { fr: 'Conseils & astuces', en: 'Tips & advice', es: 'Consejos' },
     fields: [

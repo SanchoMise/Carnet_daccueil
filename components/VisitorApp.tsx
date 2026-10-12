@@ -118,7 +118,7 @@ export default function VisitorApp({
       {/* SECTION NAV PILLS — sticky single-line horizontal scroller */}
       <div className="sticky top-14 z-40 bg-bg/95 backdrop-blur-md border-b border-border">
         <div className="max-w-[720px] mx-auto px-4 sm:px-8 py-2.5 flex flex-nowrap overflow-x-auto gap-2">
-          {SECTIONS.filter((s) => !s.hidden).map((s) => (
+          {SECTIONS.filter((s) => !s.hidden && !(s.toggleable && contentMap[s.id]?.enabled?.fr === '0')).map((s) => (
             <a
               key={s.id}
               ref={(el) => {
@@ -144,7 +144,7 @@ export default function VisitorApp({
 
       {/* MAIN */}
       <main className="max-w-[720px] mx-auto px-4 sm:px-8 pb-24 flex flex-col gap-0.5">
-        {SECTIONS.filter((s) => !s.hidden).map((s) => {
+        {SECTIONS.filter((s) => !s.hidden && !(s.toggleable && contentMap[s.id]?.enabled?.fr === '0')).map((s) => {
           const isOpen = openSection === s.id;
           return (
             <div key={s.id} id={s.id} className="scroll-mt-[124px] bg-surface rounded-2xl border border-border overflow-hidden">
