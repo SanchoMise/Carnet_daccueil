@@ -318,6 +318,9 @@ function ContentForm({
                       className="w-full border border-border rounded-sm px-3 py-2 text-sm"
                     />
                   )}
+                  {f.key === 'link_code' && values[f.key].fr && (
+                    <CopyLink url={`${window.location.origin}/?s=${values[f.key].fr}`} />
+                  )}
                 </div>
               ))}
             </div>
@@ -932,5 +935,32 @@ function CaptionInput({ image, onSave }: { image: ImageRow; onSave: (id: string,
         </span>
       )}
     </div>
+  );
+}
+
+function CopyLink({ url }: { url: string }) {
+  const [copied, setCopied] = useState(false);
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch {
+      const ta = document.createElement('textarea');
+      ta.value = url;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+    }
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+  return (
+    <button
+      type="button"
+      onClick={copy}
+      className="mt-2 w-full text-left border border-accent/30 bg-accent-light text-accent rounded-sm px-3 py-2 text-sm break-all"
+    >
+      {copied ? 'Lien copié ✓' : `📋 ${url}`}
+    </button>
   );
 }
