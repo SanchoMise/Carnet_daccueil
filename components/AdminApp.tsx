@@ -127,7 +127,7 @@ export default function AdminApp({ adminKey }: { adminKey: string }) {
             <button
               key={s.id}
               onClick={() => setActiveSection(s.id)}
-              className={`shrink-0 whitespace-nowrap text-left px-3 py-2 rounded-sm text-sm ${
+              className={`shrink-0 whitespace-nowrap md:whitespace-normal md:break-words text-left px-3 py-2 rounded-sm text-sm ${
                 activeSection === s.id ? 'bg-accent-light text-accent font-medium' : 'text-ink-2 hover:bg-bg'
               }`}
             >
