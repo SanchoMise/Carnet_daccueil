@@ -111,7 +111,7 @@ export default function VisitorApp({
         </h1>
         <p className="text-[1.05rem] text-ink-2 max-w-[460px] leading-relaxed">{t(UI_LABELS.hero_sub, lang)}</p>
         {stay?.welcome?.[lang] && (
-          <p className="text-[0.95rem] text-ink-2 max-w-[460px] leading-relaxed whitespace-pre-line mt-2">{stay.welcome[lang]}</p>
+          <p className="text-[0.95rem] text-ink-2 max-w-[460px] leading-relaxed whitespace-pre-line mt-2"><Rich text={stay.welcome[lang]} /></p>
         )}
       </section>
 
@@ -318,13 +318,54 @@ function Block({ label, images, children }: { label?: string; images?: ImageRow[
   );
 }
 
+const PHONE_RE = /(\+\d{1,3}(?:[\s.-]?\d{1,4}){2,5}|\b0\d(?:[\s.-]?\d{2}){4})/g;
+
+/** Renders text with phone numbers turned into click-to-copy chips. */
+function Rich({ text }: { text: string }) {
+  const [copied, setCopied] = useState<string | null>(null);
+  const copy = async (num: string) => {
+    try {
+      await navigator.clipboard.writeText(num);
+    } catch {
+      const ta = document.createElement('textarea');
+      ta.value = num;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+    }
+    setCopied(num);
+    setTimeout(() => setCopied(null), 1800);
+  };
+  const parts = text.split(PHONE_RE);
+  return (
+    <>
+      {parts.map((part, i) =>
+        i % 2 === 1 ? (
+          <button
+            key={i}
+            type="button"
+            onClick={() => copy(part)}
+            title="Copier"
+            className="inline whitespace-nowrap font-medium text-accent underline decoration-dotted underline-offset-2 hover:decoration-solid"
+          >
+            {copied === part ? '✓ copié' : part}
+          </button>
+        ) : (
+          <span key={i}>{part}</span>
+        )
+      )}
+    </>
+  );
+}
+
 function HighlightBox({ icon, title, body }: { icon: string; title?: string; body: string }) {
   return (
     <div className="bg-accent-light rounded-sm p-4 flex items-start gap-3 my-4">
       <Icon name={icon} className="w-5 h-5 text-accent shrink-0 mt-px" />
       <div className="text-[0.9rem] text-ink leading-relaxed">
         {title && <strong className="block font-medium mb-0.5">{title}</strong>}
-        {body}
+        <Rich text={body} />
       </div>
     </div>
   );
@@ -346,7 +387,7 @@ function ArriveeBody({ v, lang, images }: { v: VFn; lang: Lang; images: ImageRow
       {(keyWarning || doorsNote) && (
         <Block images={imgFor(images, 'arrivee', 'key_warning')}>
           {keyWarning && <HighlightBox icon="key" body={keyWarning} />}
-          {doorsNote && <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line mt-2">{doorsNote}</p>}
+          {doorsNote && <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line mt-2"><Rich text={doorsNote} /></p>}
         </Block>
       )}
       <Block images={imgFor(images, 'arrivee', 'entrance_note')}>
@@ -373,12 +414,12 @@ function ArriveeBody({ v, lang, images }: { v: VFn; lang: Lang; images: ImageRow
           <div className="bg-bg rounded-sm p-4 flex flex-col gap-1">
             <div className="text-xs uppercase tracking-wider text-ink-3 font-medium">{t(UI_LABELS.checkin, lang)}</div>
             <div className="text-base font-medium text-ink">{checkinTime || '—'}</div>
-            <div className="text-sm text-ink-2">{checkinNote}</div>
+            <div className="text-sm text-ink-2"><Rich text={checkinNote} /></div>
           </div>
           <div className="bg-bg rounded-sm p-4 flex flex-col gap-1">
             <div className="text-xs uppercase tracking-wider text-ink-3 font-medium">{t(UI_LABELS.checkout, lang)}</div>
             <div className="text-base font-medium text-ink">{checkoutTime || '—'}</div>
-            <div className="text-sm text-ink-2">{checkoutNote}</div>
+            <div className="text-sm text-ink-2"><Rich text={checkoutNote} /></div>
           </div>
         </div>
       </Block>
@@ -445,7 +486,7 @@ function WifiBody({ v, lang, images, onShowQr }: { v: VFn; lang: Lang; images: I
       </Block>
       <Block images={imgFor(images, 'wifi', 'devices_note')}>
         <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line">
-          {devicesNote || UI_LABELS.to_complete[lang]}
+          <Rich text={devicesNote || UI_LABELS.to_complete[lang]} />
         </p>
       </Block>
     </>
@@ -465,32 +506,32 @@ function CuisineBody({ v, lang, images }: { v: VFn; lang: Lang; images: ImageRow
     <>
       <Block images={imgFor(images, 'cuisine', 'equipment_note')}>
         <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line">
-          {equipmentNote || UI_LABELS.to_complete[lang]}
+          <Rich text={equipmentNote || UI_LABELS.to_complete[lang]} />
         </p>
       </Block>
       {inductionNote && (
         <Block label={fieldLabel('cuisine', 'induction_note')?.[lang]} images={imgFor(images, 'cuisine', 'induction_note')}>
-          <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line">{inductionNote}</p>
+          <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line"><Rich text={inductionNote} /></p>
         </Block>
       )}
       {dishwasherNote && (
         <Block label={fieldLabel('cuisine', 'dishwasher_note')?.[lang]} images={imgFor(images, 'cuisine', 'dishwasher_note')}>
-          <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line">{dishwasherNote}</p>
+          <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line"><Rich text={dishwasherNote} /></p>
         </Block>
       )}
       {coffeeNote && (
         <Block label={fieldLabel('cuisine', 'coffee_note')?.[lang]} images={imgFor(images, 'cuisine', 'coffee_note')}>
-          <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line">{coffeeNote}</p>
+          <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line"><Rich text={coffeeNote} /></p>
         </Block>
       )}
       {sinkNote && (
         <Block label={fieldLabel('cuisine', 'sink_note')?.[lang]} images={imgFor(images, 'cuisine', 'sink_note')}>
-          <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line">{sinkNote}</p>
+          <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line"><Rich text={sinkNote} /></p>
         </Block>
       )}
       {lightsNote && (
         <Block label={fieldLabel('cuisine', 'lights_note')?.[lang]} images={imgFor(images, 'cuisine', 'lights_note')}>
-          <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line">{lightsNote}</p>
+          <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line"><Rich text={lightsNote} /></p>
         </Block>
       )}
       <Block>
@@ -511,7 +552,7 @@ function CuisineBody({ v, lang, images }: { v: VFn; lang: Lang; images: ImageRow
       </Block>
       {binsLocation && (
         <Block label={fieldLabel('cuisine', 'bins_location')?.[lang]} images={imgFor(images, 'cuisine', 'bins_location')}>
-          <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line">{binsLocation}</p>
+          <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line"><Rich text={binsLocation} /></p>
         </Block>
       )}
     </>
@@ -535,7 +576,7 @@ function GenericBody({ section, v, lang, images }: { section: SectionDef; v: VFn
       {filled.map((f) => (
         <Block key={f.key} label={f.label[lang]} images={imgFor(images, section.id, f.key)}>
           <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line">
-            {v(section.id, f.key, f.translatable)}
+            <Rich text={v(section.id, f.key, f.translatable)} />
           </p>
         </Block>
       ))}
@@ -555,32 +596,32 @@ function RoomBody({ sectionId, v, lang, images }: { sectionId: string; v: VFn; l
     <>
       <Block images={imgFor(images, sectionId, 'intro_note')}>
         <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line">
-          {introNote || UI_LABELS.to_complete[lang]}
+          <Rich text={introNote || UI_LABELS.to_complete[lang]} />
         </p>
       </Block>
       {voletNote && (
         <Block label={fieldLabel(sectionId, 'volet_note')?.[lang]} images={imgFor(images, sectionId, 'volet_note')}>
-          <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line">{voletNote}</p>
+          <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line"><Rich text={voletNote} /></p>
         </Block>
       )}
       {cabinBedNote && (
         <Block label={fieldLabel(sectionId, 'cabin_bed_note')?.[lang]} images={imgFor(images, sectionId, 'cabin_bed_note')}>
-          <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line">{cabinBedNote}</p>
+          <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line"><Rich text={cabinBedNote} /></p>
         </Block>
       )}
       {lightsNote && (
         <Block label={fieldLabel(sectionId, 'lights_note')?.[lang]} images={imgFor(images, sectionId, 'lights_note')}>
-          <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line">{lightsNote}</p>
+          <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line"><Rich text={lightsNote} /></p>
         </Block>
       )}
       {sonosNote && (
         <Block label={fieldLabel(sectionId, 'sonos_note')?.[lang]} images={imgFor(images, sectionId, 'sonos_note')}>
-          <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line">{sonosNote}</p>
+          <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line"><Rich text={sonosNote} /></p>
         </Block>
       )}
       {fanNote && (
         <Block label={fieldLabel(sectionId, 'fan_note')?.[lang]} images={imgFor(images, sectionId, 'fan_note')}>
-          <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line">{fanNote}</p>
+          <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line"><Rich text={fanNote} /></p>
         </Block>
       )}
     </>
@@ -590,7 +631,7 @@ function RoomBody({ sectionId, v, lang, images }: { sectionId: string; v: VFn; l
 function SimpleBody({ section, fieldKey, value, images }: { section: string; fieldKey: string; value: string; images: ImageRow[] }) {
   return (
     <Block images={imgFor(images, section, fieldKey)}>
-      <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line">{value}</p>
+      <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line"><Rich text={value} /></p>
     </Block>
   );
 }
@@ -660,7 +701,7 @@ function TransportsBody({ value, images }: { value: string; images: ImageRow[] }
       </Block>
       {value && (
         <Block images={imgFor(images, 'transports', 'transports_note')}>
-          <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line">{value}</p>
+          <p className="text-[0.93rem] text-ink-2 leading-relaxed whitespace-pre-line"><Rich text={value} /></p>
         </Block>
       )}
     </>
@@ -762,7 +803,7 @@ function UrgencesBody({ v, lang, images }: { v: VFn; lang: Lang; images: ImageRo
           <div className="text-xs font-bold uppercase tracking-wider text-accent mb-1.5">
             {fieldLabel('urgences', 'electrical_note')?.[lang]}
           </div>
-          <p className="text-sm text-ink-2 leading-relaxed whitespace-pre-line">{electricalNote}</p>
+          <p className="text-sm text-ink-2 leading-relaxed whitespace-pre-line"><Rich text={electricalNote} /></p>
           <BlockImages images={imgFor(images, 'urgences', 'electrical_note')} />
         </div>
       )}
@@ -775,7 +816,7 @@ function ChecklistBody({ v, lang, checked, onToggle }: { v: VFn; lang: Lang; che
   return (
     <>
       {cleaningNote && (
-        <p className="text-sm text-ink-2 leading-relaxed whitespace-pre-line pt-2 pb-1">{cleaningNote}</p>
+        <p className="text-sm text-ink-2 leading-relaxed whitespace-pre-line pt-2 pb-1"><Rich text={cleaningNote} /></p>
       )}
       <ul className="flex flex-col gap-2 pt-2">
       {CHECKLIST_ITEMS.map((item, i) => {
