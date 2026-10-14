@@ -254,6 +254,35 @@ export const SECTIONS: SectionDef[] = [
   },
 ];
 
+/** Admin-only: shared checklist + thank-you message for the cleaning-service page (/menage/<code>). */
+SECTIONS.push({
+  id: 'menage-pro',
+  icon: 'check',
+  hidden: true,
+  title: { fr: 'Prestations ménage', en: 'Cleaning service', es: 'Servicio de limpieza' },
+  subtitle: { fr: '', en: '', es: '' },
+  fields: [
+    {
+      key: 'tasks',
+      translatable: false,
+      type: 'textarea',
+      label: { fr: 'Liste des tâches (une par ligne ; « ## Titre » pour créer un groupe)', en: 'Tasks', es: 'Tareas' },
+    },
+    {
+      key: 'thanks_title',
+      translatable: false,
+      type: 'text',
+      label: { fr: 'Titre du message de remerciement ({prenom} = prénom)', en: 'Thanks title', es: 'Título' },
+    },
+    {
+      key: 'thanks_message',
+      translatable: false,
+      type: 'textarea',
+      label: { fr: 'Message de remerciement ({prenom}, {date} disponibles)', en: 'Thanks message', es: 'Mensaje' },
+    },
+  ],
+});
+
 /** Reusable per-stay slots. Link: /?s=<link_code>, or automatic by date from the fridge QR. */
 export const STAY_SLOTS = ['sejour-a', 'sejour-b', 'sejour-c'] as const;
 

@@ -1,5 +1,6 @@
 import { ContentMap, Lang, LANGS } from './types';
 import { STAY_SLOTS } from './sections';
+import { MENAGE_SECTION, PRESTATION_PREFIX } from './menage';
 
 export type ActiveStay = { id: string; guests: string; welcome?: Record<Lang, string> };
 
@@ -46,8 +47,12 @@ export function pickStay(map: ContentMap, param?: string): string | null {
 }
 
 export function applyStay(map: ContentMap, id: string | null): { map: ContentMap; stay: ActiveStay | null } {
-  if (!id || !map[id]) return { map, stay: null };
-  const next: ContentMap = { ...map };
+  // Never ship other guests' link codes, or the cleaning-service data, to the visitor's browser.
+  const isPrivate = (sec: string) =>
+    (STAY_SLOTS as readonly string[]).includes(sec) || sec === MENAGE_SECTION || sec.startsWith(PRESTATION_PREFIX);
+  const stripped: ContentMap = Object.fromEntries(Object.entries(map).filter(([sec]) => !isPrivate(sec)));
+  if (!id || !map[id]) return { map: stripped, stay: null };
+  const next: ContentMap = { ...stripped };
   for (const [k, [sec, key]] of Object.entries(OVERRIDES)) {
     const e = map[id][k];
     if (!e || !(e.fr || e.en || e.es)) continue;

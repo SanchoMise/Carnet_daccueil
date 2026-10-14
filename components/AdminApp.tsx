@@ -5,6 +5,7 @@ import { SECTIONS } from '@/lib/sections';
 import { ContentMap, ContentRow, ImageRow, Lang, PlaceRow } from '@/lib/types';
 import { translateBatch } from '@/lib/translateClient';
 import { estimateWalkMinutesFromApartment } from '@/lib/geo';
+import { MENAGE_SECTION, PRESTATION_PREFIX, allTasks, formatLongDate, parseDone, parseTasks } from '@/lib/menage';
 
 type FieldValues = Record<string, Record<Lang, string>>;
 
@@ -183,6 +184,15 @@ export default function AdminApp({ adminKey }: { adminKey: string }) {
                 });
                 flash('Enregistré ✓');
               }}
+            />
+          )}
+
+          {section.id === MENAGE_SECTION && (
+            <PrestationsEditor
+              contentMap={contentMap}
+              adminKey={adminKey}
+              flash={flash}
+              setContentMap={setContentMap}
             />
           )}
 
@@ -1049,5 +1059,238 @@ function AutoTextarea({ value, onChange, className }: { value: string; onChange:
       onChange={(e) => onChange(e.target.value)}
       className={`${className ?? ''} resize-none overflow-hidden`}
     />
+  );
+}
+
+function PrestationsEditor({
+  contentMap,
+  adminKey,
+  flash,
+  setContentMap,
+}: {
+  contentMap: ContentMap;
+  adminKey: string;
+  flash: (msg: string, error?: boolean) => void;
+  setContentMap: React.Dispatch<React.SetStateAction<ContentMap>>;
+}) {
+  const headers = { 'Content-Type': 'application/json', 'x-admin-key': adminKey };
+  const fr = (sec: string, key: string) => contentMap[sec]?.[key]?.fr ?? '';
+  const tasks = allTasks(parseTasks(fr(MENAGE_SECTION, 'tasks')));
+  const [editing, setEditing] = useState<string | null>(null); // section id, or 'new'
+  const [form, setForm] = useState({ person: '', date: '', time: '', duration: '', note: '' });
+  const [busy, setBusy] = useState(false);
+
+  // Live progress: refresh the content while this tab is open.
+  const refresh = useCallback(async () => {
+    try {
+      const res = await fetch('/api/content', { headers });
+      if (!res.ok) return;
+      const json = await res.json();
+      setContentMap((prev) => {
+        const fresh = contentMapFromRows(json.data ?? []);
+        return { ...prev, ...Object.fromEntries(Object.entries(fresh).filter(([k]) => k.startsWith(PRESTATION_PREFIX))) };
+      });
+    } catch {
+      /* ignore */
+    }
+  }, [adminKey]);
+  useEffect(() => {
+    if (editing) return;
+    const id = setInterval(refresh, 20000);
+    return () => clearInterval(id);
+  }, [refresh, editing]);
+
+  const sections = Object.keys(contentMap)
+    .filter((k) => k.startsWith(PRESTATION_PREFIX) && contentMap[k]?.person)
+    .sort((a, b) => fr(b, 'date').localeCompare(fr(a, 'date')));
+
+  const save = async (sectionId: string, items: { key: string; value: string }[]) => {
+    const res = await fetch('/api/content', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ items: items.map((i) => ({ section: sectionId, lang: 'fr', ...i })) }),
+    });
+    if (!res.ok) {
+      flash(`Échec de l'enregistrement : ${await readError(res)}`, true);
+      return false;
+    }
+    setContentMap((prev) => {
+      const next = { ...prev, [sectionId]: { ...(prev[sectionId] ?? {}) } };
+      for (const i of items) next[sectionId][i.key] = { fr: i.value, en: i.value, es: i.value } as Record<Lang, string>;
+      return next;
+    });
+    return true;
+  };
+
+  const startEdit = (sectionId: string) => {
+    setForm({
+      person: fr(sectionId, 'person'),
+      date: fr(sectionId, 'date'),
+      time: fr(sectionId, 'time'),
+      duration: fr(sectionId, 'duration'),
+      note: fr(sectionId, 'note'),
+    });
+    setEditing(sectionId);
+  };
+
+  const submit = async () => {
+    if (!form.person.trim() || !form.date) {
+      flash('Renseignez au moins le prénom et la date.', true);
+      return;
+    }
+    setBusy(true);
+    let sectionId = editing!;
+    const items: { key: string; value: string }[] = (Object.keys(form) as (keyof typeof form)[]).map((key) => ({
+      key,
+      value: form[key],
+    }));
+    if (sectionId === 'new') {
+      const bytes = crypto.getRandomValues(new Uint8Array(12));
+      const alphabet = 'abcdefghijklmnopqrstuvwxyz0123456789';
+      sectionId = PRESTATION_PREFIX + Array.from(bytes, (b) => alphabet[b % alphabet.length]).join('');
+      items.push({ key: 'done', value: '[]' });
+    }
+    const ok = await save(sectionId, items);
+    setBusy(false);
+    if (ok) {
+      setEditing(null);
+      flash('Prestation enregistrée ✓');
+    }
+  };
+
+  const reset = async (sectionId: string) => {
+    if (!confirm('Remettre toutes les cases à zéro ?')) return;
+    if (await save(sectionId, [{ key: 'done', value: '[]' }, { key: 'completed_at', value: '' }])) flash('Remis à zéro ✓');
+  };
+
+  const remove = async (sectionId: string) => {
+    if (!confirm(`Supprimer la prestation de ${fr(sectionId, 'person')} ?`)) return;
+    const res = await fetch('/api/content', { method: 'DELETE', headers, body: JSON.stringify({ section: sectionId }) });
+    if (!res.ok) {
+      flash(`Échec de la suppression : ${await readError(res)}`, true);
+      return;
+    }
+    setContentMap((prev) => {
+      const next = { ...prev };
+      delete next[sectionId];
+      return next;
+    });
+    flash('Prestation supprimée ✓');
+  };
+
+  const formUi = (
+    <div className="bg-surface border border-border rounded-md p-4 flex flex-col gap-3 mt-3">
+      {([
+        ['person', 'Prénom de la personne', 'text'],
+        ['date', 'Date', 'date'],
+        ['time', "Heure d'arrivée (ex. 12h30)", 'text'],
+        ['duration', 'Durée prévue (ex. 3h)', 'text'],
+      ] as const).map(([k, label, type]) => (
+        <label key={k} className="flex flex-col gap-1 text-xs font-medium uppercase tracking-wider text-ink-3">
+          {label}
+          <input
+            type={type}
+            value={form[k]}
+            onChange={(e) => setForm({ ...form, [k]: e.target.value })}
+            className="border border-border rounded-sm px-3 py-2 text-sm normal-case tracking-normal font-normal text-ink"
+          />
+        </label>
+      ))}
+      <label className="flex flex-col gap-1 text-xs font-medium uppercase tracking-wider text-ink-3">
+        Note pour cette prestation (clés, consignes…)
+        <AutoTextarea
+          value={form.note}
+          onChange={(v) => setForm({ ...form, note: v })}
+          className="border border-border rounded-sm px-3 py-2 text-sm normal-case tracking-normal font-normal text-ink"
+        />
+      </label>
+      <div className="flex gap-2">
+        <button
+          onClick={submit}
+          disabled={busy}
+          className="bg-accent text-white rounded-sm px-4 py-2 text-sm font-medium disabled:opacity-60"
+        >
+          {busy ? 'Enregistrement…' : 'Enregistrer'}
+        </button>
+        <button onClick={() => setEditing(null)} className="px-4 py-2 text-sm text-ink-2">
+          Annuler
+        </button>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="mb-6">
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="font-serif text-lg">Prestations</h2>
+        {editing !== 'new' && (
+          <button
+            onClick={() => {
+              setForm({ person: '', date: '', time: '', duration: '', note: '' });
+              setEditing('new');
+            }}
+            className="bg-accent text-white rounded-sm px-3 py-1.5 text-sm font-medium"
+          >
+            + Nouvelle prestation
+          </button>
+        )}
+      </div>
+      {editing === 'new' && formUi}
+
+      <div className="flex flex-col gap-3 mt-3">
+        {sections.length === 0 && editing !== 'new' && <p className="text-sm text-ink-3">Aucune prestation pour l&apos;instant.</p>}
+        {sections.map((id) => {
+          const done = parseDone(fr(id, 'done'));
+          const count = tasks.filter((t) => done.includes(t)).length;
+          const complete = tasks.length > 0 && count === tasks.length;
+          const last = fr(id, 'last_update');
+          const code = id.slice(PRESTATION_PREFIX.length);
+          return (
+            <div key={id} className="bg-surface border border-border rounded-md p-4">
+              <div className="flex flex-wrap items-baseline justify-between gap-2">
+                <div>
+                  <div className="font-medium">{fr(id, 'person')}</div>
+                  <div className="text-sm text-ink-2">
+                    {formatLongDate(fr(id, 'date'))}
+                    {fr(id, 'time') && ` · ${fr(id, 'time')}`}
+                    {fr(id, 'duration') && ` · ${fr(id, 'duration')}`}
+                  </div>
+                </div>
+                <div className={`text-sm font-medium ${complete ? 'text-accent' : 'text-ink-2'}`}>
+                  {complete ? '✓ Terminé' : `${count} / ${tasks.length}`}
+                </div>
+              </div>
+              <div className="h-1.5 rounded-full bg-border overflow-hidden mt-3">
+                <div
+                  className="h-full bg-accent"
+                  style={{ width: `${tasks.length ? (count / tasks.length) * 100 : 0}%` }}
+                />
+              </div>
+              {last && (
+                <div className="text-xs text-ink-3 mt-2">
+                  Dernière action : {new Date(last).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' })}
+                </div>
+              )}
+              <CopyLink url={`${window.location.origin}/menage/${code}`} />
+              {editing === id ? (
+                formUi
+              ) : (
+                <div className="flex gap-4 mt-3 text-sm">
+                  <button onClick={() => startEdit(id)} className="text-accent">
+                    Modifier
+                  </button>
+                  <button onClick={() => reset(id)} className="text-ink-2">
+                    Remettre à zéro
+                  </button>
+                  <button onClick={() => remove(id)} className="text-red-600">
+                    Supprimer
+                  </button>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
   );
 }

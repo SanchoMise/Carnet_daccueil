@@ -46,3 +46,20 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json({ ok: true });
 }
+
+// Remove every row of one cleaning-service entry (sections named `prestation-<code>` only).
+export async function DELETE(request: NextRequest) {
+  if (!isAdminRequest(request)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  const body = (await request.json().catch(() => null)) as { section?: string } | null;
+  if (!body?.section || !body.section.startsWith('prestation-')) {
+    return NextResponse.json({ error: 'Invalid section' }, { status: 400 });
+  }
+  const supabase = createAdminClient();
+  const { error } = await supabase.from('content').delete().eq('section', body.section);
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+  return NextResponse.json({ ok: true });
+}
