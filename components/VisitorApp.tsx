@@ -172,6 +172,7 @@ export default function VisitorApp({
                   {s.id === 'entree' && <GenericBody section={s} v={v} lang={lang} images={images} />}
                   {s.id === 'salon' && <GenericBody section={s} v={v} lang={lang} images={images} />}
                   {s.id === 'laverie' && <GenericBody section={s} v={v} lang={lang} images={images} />}
+                  {s.id === 'plantes' && <GenericBody section={s} v={v} lang={lang} images={images} />}
                   {s.id === 'canicule' && <GenericBody section={s} v={v} lang={lang} images={images} />}
                   {s.id === 'cuisine' && <CuisineBody v={v} lang={lang} images={images} />}
                   {(s.id === 'chambre-parentale' || s.id === 'chambre-filles') && (

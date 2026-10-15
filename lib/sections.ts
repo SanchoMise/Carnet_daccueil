@@ -153,6 +153,15 @@ export const SECTIONS: SectionDef[] = [
     ],
   },
   {
+    id: 'plantes',
+    icon: 'leaf',
+    title: { fr: 'Plantes', en: 'Plants', es: 'Plantas' },
+    subtitle: { fr: 'Arrosage', en: 'Watering', es: 'Riego' },
+    fields: [
+      { key: 'plantes_note', translatable: true, type: 'textarea', label: { fr: 'Arrosage', en: 'Watering', es: 'Riego' } },
+    ],
+  },
+  {
     id: 'chambre-parentale',
     icon: 'bed',
     title: { fr: 'Chambre parentale', en: 'Main bedroom', es: 'Habitación principal' },

@@ -99,6 +99,12 @@ const paths: Record<string, JSX.Element> = {
       <path d="M8 3.5h.01M12 3.5h.01" />
     </>
   ),
+  leaf: (
+    <>
+      <path d="M5 19c0-8 5-14 15-14 0 10-6 15-14 15" />
+      <path d="M5 19c3-5 6-8 11-11" />
+    </>
+  ),
   sun: (
     <>
       <circle cx="12" cy="12" r="4.5" />
