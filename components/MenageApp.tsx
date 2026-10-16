@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { Icon } from './icons';
+import { BlockImages } from './VisitorApp';
+import type { ImageRow } from '@/lib/types';
 import { TaskGroup, allTasks, fillTemplate, formatLongDate } from '@/lib/menage';
 
 function Confetti() {
@@ -58,6 +60,7 @@ export default function MenageApp({
   duration,
   note,
   groups,
+  images,
   initialDone,
   thanksTitle,
   thanksMessage,
@@ -69,6 +72,7 @@ export default function MenageApp({
   duration: string;
   note: string;
   groups: TaskGroup[];
+  images: ImageRow[];
   initialDone: string[];
   thanksTitle: string;
   thanksMessage: string;
@@ -156,6 +160,12 @@ export default function MenageApp({
               <div className="bg-accent-light rounded-sm p-4 flex items-start gap-3 mb-6">
                 <Icon name="key" className="w-5 h-5 text-accent shrink-0 mt-px" />
                 <p className="text-[0.92rem] text-ink leading-relaxed whitespace-pre-line">{note}</p>
+              </div>
+            )}
+
+            {images.length > 0 && (
+              <div className="mb-6">
+                <BlockImages images={images} />
               </div>
             )}
 

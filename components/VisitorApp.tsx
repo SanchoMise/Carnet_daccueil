@@ -248,7 +248,7 @@ function prefetchImage(url: string) {
   img.src = url;
 }
 
-function BlockImages({ images }: { images: ImageRow[] }) {
+export function BlockImages({ images }: { images: ImageRow[] }) {
   const [lightbox, setLightbox] = useState<ImageRow | null>(null);
 
   if (images.length === 0) return null;

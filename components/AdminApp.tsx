@@ -221,7 +221,7 @@ export default function AdminApp({ adminKey }: { adminKey: string }) {
           <ImagesEditor
             key={`images-${section.id}`}
             section={section.id}
-            fields={section.hidden ? [] : section.fields}
+            fields={section.hidden && section.id !== MENAGE_SECTION ? [] : section.fields}
             images={images.filter((i) => i.section === section.id)}
             adminKey={adminKey}
             onChange={(sectionImages) =>
