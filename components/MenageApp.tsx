@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Icon } from './icons';
 import { BlockImages } from './VisitorApp';
 import type { ImageRow } from '@/lib/types';
-import { TaskGroup, allTasks, fillTemplate, formatLongDate } from '@/lib/menage';
+import { TaskGroup, taskImageKey, allTasks, fillTemplate, formatLongDate } from '@/lib/menage';
 
 function Confetti() {
   const ref = useRef<HTMLCanvasElement>(null);
@@ -163,12 +163,6 @@ export default function MenageApp({
               </div>
             )}
 
-            {images.length > 0 && (
-              <div className="mb-6">
-                <BlockImages images={images} />
-              </div>
-            )}
-
             <div className="mb-6">
               <div className="flex justify-between text-xs text-ink-3 mb-1.5">
                 <span>
@@ -202,7 +196,7 @@ export default function MenageApp({
                           key={task}
                           onClick={() => toggle(task)}
                           className={`flex items-start gap-3 text-[0.95rem] cursor-pointer select-none transition-colors ${
-                            isDone ? 'text-ink-3 line-through' : 'text-ink-2'
+                            isDone ? 'text-ink-3' : 'text-ink-2'
                           }`}
                         >
                           <div
@@ -212,7 +206,12 @@ export default function MenageApp({
                           >
                             {isDone && <Icon name="checkmark" className="w-3.5 h-3.5 text-white" />}
                           </div>
-                          <span>{task}</span>
+                          <div className="min-w-0">
+                            <span className={isDone ? 'line-through' : ''}>{task}</span>
+                            <div onClick={(e) => e.stopPropagation()}>
+                              <BlockImages images={images.filter((i) => i.field_key === taskImageKey(task))} />
+                            </div>
+                          </div>
                         </li>
                       );
                     })}

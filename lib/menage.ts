@@ -48,3 +48,6 @@ export function formatLongDate(iso: string): string {
     new Date(Date.UTC(y, m - 1, d))
   );
 }
+
+/** `images.field_key` for photos attached to one checklist task (changes if the task text is edited). */
+export const taskImageKey = (task: string) => `task:${task}`;

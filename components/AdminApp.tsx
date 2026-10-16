@@ -5,7 +5,7 @@ import { SECTIONS } from '@/lib/sections';
 import { ContentMap, ContentRow, ImageRow, Lang, PlaceRow } from '@/lib/types';
 import { translateBatch } from '@/lib/translateClient';
 import { estimateWalkMinutesFromApartment } from '@/lib/geo';
-import { MENAGE_SECTION, PRESTATION_PREFIX, allTasks, formatLongDate, parseDone, parseTasks } from '@/lib/menage';
+import { MENAGE_SECTION, taskImageKey, PRESTATION_PREFIX, allTasks, formatLongDate, parseDone, parseTasks } from '@/lib/menage';
 
 type FieldValues = Record<string, Record<Lang, string>>;
 
@@ -221,7 +221,17 @@ export default function AdminApp({ adminKey }: { adminKey: string }) {
           <ImagesEditor
             key={`images-${section.id}`}
             section={section.id}
-            fields={section.hidden && section.id !== MENAGE_SECTION ? [] : section.fields}
+            fields={
+              section.id === MENAGE_SECTION
+                ? allTasks(parseTasks(contentMap[MENAGE_SECTION]?.tasks?.fr ?? '')).map((t) => ({
+                    key: taskImageKey(t),
+                    translatable: false,
+                    label: { fr: t, en: t, es: t },
+                  }))
+                : section.hidden
+                  ? []
+                  : section.fields
+            }
             images={images.filter((i) => i.section === section.id)}
             adminKey={adminKey}
             onChange={(sectionImages) =>
