@@ -5,7 +5,7 @@ import { SECTIONS } from '@/lib/sections';
 import { ContentMap, ContentRow, ImageRow, Lang, PlaceRow } from '@/lib/types';
 import { translateBatch } from '@/lib/translateClient';
 import { estimateWalkMinutesFromApartment } from '@/lib/geo';
-import { MENAGE_SECTION, taskImageKey, PRESTATION_PREFIX, allTasks, formatLongDate, parseDone, parseTasks } from '@/lib/menage';
+import { MENAGE_SECTION, spaceGroups, taskImageKey, PRESTATION_PREFIX, allTasks, formatLongDate, parseDone, parseTasks } from '@/lib/menage';
 
 type FieldValues = Record<string, Record<Lang, string>>;
 
@@ -354,6 +354,11 @@ function ContentForm({
                     <AutoTextarea
                       value={values[f.key].fr}
                       onChange={(v) => setVal(f.key, 'fr', v)}
+                      onBlur={
+                        section === MENAGE_SECTION && f.key === 'tasks'
+                          ? () => setVal(f.key, 'fr', spaceGroups(values[f.key].fr))
+                          : undefined
+                      }
                       className="w-full border border-border rounded-sm px-3 py-2 text-sm"
                     />
                   ) : f.type === 'select' ? (
@@ -877,7 +882,7 @@ function ImagesEditor({
         <div className="flex flex-col gap-4 mb-5">
           {groups.map((g) => (
             <div key={g.key}>
-              <div className="text-xs font-medium uppercase tracking-wider text-ink-3 mb-2">{g.label}</div>
+              <div className="text-xs font-medium tracking-wide text-ink-3 mb-2 break-words">{g.label}</div>
               <div className="flex flex-wrap gap-3">
                 {g.items.map((img) => (
                   <div key={img.id} className="w-32">
@@ -905,11 +910,11 @@ function ImagesEditor({
         <select
           value={targetField}
           onChange={(e) => setTargetField(e.target.value)}
-          className="border border-border rounded-sm px-3 py-2 text-sm bg-surface w-full sm:w-auto"
+          className="border border-border rounded-sm px-3 py-2 text-sm bg-surface w-full sm:w-auto max-w-full"
         >
           {fields.map((f) => (
             <option key={f.key} value={f.key}>
-              {f.label.fr}
+              {f.label.fr.length > 70 ? `${f.label.fr.slice(0, 70)}…` : f.label.fr}
             </option>
           ))}
         </select>
@@ -1048,7 +1053,7 @@ function SectionSwitch({ enabled, onToggle }: { enabled: boolean; onToggle: (on:
 }
 
 /** Textarea that grows with its content instead of scrolling. */
-function AutoTextarea({ value, onChange, className }: { value: string; onChange: (v: string) => void; className?: string }) {
+function AutoTextarea({ value, onChange, onBlur, className }: { value: string; onChange: (v: string) => void; onBlur?: () => void; className?: string }) {
   const ref = useRef<HTMLTextAreaElement>(null);
   const fit = () => {
     const el = ref.current;
@@ -1067,6 +1072,7 @@ function AutoTextarea({ value, onChange, className }: { value: string; onChange:
       value={value}
       rows={2}
       onChange={(e) => onChange(e.target.value)}
+      onBlur={onBlur}
       className={`${className ?? ''} resize-none overflow-hidden`}
     />
   );

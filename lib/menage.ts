@@ -51,3 +51,12 @@ export function formatLongDate(iso: string): string {
 
 /** `images.field_key` for photos attached to one checklist task (changes if the task text is edited). */
 export const taskImageKey = (task: string) => `task:${task}`;
+
+/** Puts one blank line before each "## group" line (blank lines are ignored when parsing). */
+export function spaceGroups(text: string): string {
+  return text
+    .split('\n')
+    .filter((l) => l.trim() !== '')
+    .map((l, i) => (i > 0 && l.trim().startsWith('## ') ? `\n${l}` : l))
+    .join('\n');
+}
